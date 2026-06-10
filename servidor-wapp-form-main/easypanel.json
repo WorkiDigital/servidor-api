@@ -1,0 +1,62 @@
+{
+  "services": [
+    {
+      "type": "app",
+      "data": {
+        "serviceName": "api",
+        "source": {
+          "type": "github",
+          "owner": "SEU_USER",
+          "repo": "SEU_REPO",
+          "ref": "main",
+          "path": "/api"
+        },
+        "build": {
+          "type": "dockerfile",
+          "file": "Dockerfile"
+        },
+        "env": "NODE_ENV=production\nPORT=3000\nDATABASE_URL=postgresql://postgres:POSTGRES_PASSWORD@$(PROJECT_NAME)_postgres:5432/trackserver\nREDIS_URL=redis://:REDIS_PASSWORD@$(PROJECT_NAME)_redis:6379/0\nENCRYPTION_KEY=TROQUE_POR_64_CHARS_HEX\nJWT_SECRET=TROQUE_POR_SECRET_FORTE\nADMIN_USER=admin\nADMIN_PASSWORD=TROQUE_POR_SENHA_FORTE\nTRACK_SERVER_PUBLIC_HOST=track.seudominio.com\nMETA_API_VERSION=v22.0",
+        "domains": [
+          {
+            "host": "track.seudominio.com",
+            "port": 3000,
+            "https": true
+          }
+        ]
+      }
+    },
+    {
+      "type": "app",
+      "data": {
+        "serviceName": "worker",
+        "source": {
+          "type": "github",
+          "owner": "SEU_USER",
+          "repo": "SEU_REPO",
+          "ref": "main",
+          "path": "/worker"
+        },
+        "build": {
+          "type": "dockerfile",
+          "file": "Dockerfile"
+        },
+        "env": "NODE_ENV=production\nDATABASE_URL=postgresql://postgres:POSTGRES_PASSWORD@$(PROJECT_NAME)_postgres:5432/trackserver\nREDIS_URL=redis://:REDIS_PASSWORD@$(PROJECT_NAME)_redis:6379/0\nENCRYPTION_KEY=TROQUE_POR_64_CHARS_HEX"
+      }
+    },
+    {
+      "type": "postgres",
+      "data": {
+        "serviceName": "postgres",
+        "image": "postgres:16-alpine",
+        "password": "TROQUE_POR_SENHA_FORTE"
+      }
+    },
+    {
+      "type": "redis",
+      "data": {
+        "serviceName": "redis",
+        "password": "TROQUE_POR_SENHA_FORTE"
+      }
+    }
+  ]
+}

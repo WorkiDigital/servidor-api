@@ -1,0 +1,27 @@
+# IDEs and system files
+.claude/
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Dependencies
+**/node_modules/
+
+# Production and local env files
+**/.env
+**/.env.production
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+
+# Build outputs
+**/dist/
+**/build/
