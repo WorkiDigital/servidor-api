@@ -1,6 +1,0 @@
-{
-  "script": "<!-- TrackServer Hub - instalação first-party -->\n<script>\n  (function(t,s){\n    window.TS=window.TS||function(){(TS.q=TS.q||[]).push(arguments)};\n    TS('init','proj-001',{ pixelId:'1234567890123456', endpoint:'https://track.modafeminina.com.br' });\n    var j=document.createElement('script');j.async=1;\n    j.src='https://track.modafeminina.com.br/t.js';document.head.appendChild(j);\n  })();\n</script>",
-  "cnameTarget": "track.seudominio.com",
-  "clientCname": "track.modafeminina.com.br",
-  "integrity": "a3f8b2c1d4e5f67890abcdef1234567890abcdef1234567890abcdef12345678"
-}
