@@ -381,6 +381,7 @@ export default async function eventRoutes(fastify: FastifyInstance, _options: Fa
       source_id: client.source_id || client.id,
       source_type: client.source_type || 'custom',
       workspace_id: client.workspace_id,
+      pixel_id: client.pixel_id,
     };
 
     const script = `
@@ -389,6 +390,26 @@ export default async function eventRoutes(fastify: FastifyInstance, _options: Fa
   var existingConfig = window.TrackServerConfig || {};
   var autoPageView = existingConfig.autoPageView !== false;
   var autoCaptureForm = existingConfig.autoCaptureForm === true;
+
+  if (!window.fbq) {
+    var n = window.fbq = function() {
+      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+    };
+    if (!window._fbq) window._fbq = n;
+    n.push = n;
+    n.loaded = !0;
+    n.version = '2.0';
+    n.queue = [];
+    var t = document.createElement('script');
+    t.async = !0;
+    t.src = 'https://connect.facebook.net/en_US/fbevents.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(t, s);
+  }
+
+  if (CONFIG.pixel_id) {
+    window.fbq('init', CONFIG.pixel_id);
+  }
 
   function uuid(){
     if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
