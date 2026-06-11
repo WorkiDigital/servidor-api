@@ -330,6 +330,36 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
     }
   });
 
+  fastify.get('/admin/projects/:id/form-capture', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    try {
+      const res = await query('SELECT form_capture_rules FROM clients WHERE id = $1 LIMIT 1', [request.params.id]);
+      if (!res.rows[0]) return reply.status(404).send({ error: 'Not Found', message: 'Project not found' });
+      return reply.status(200).send({ rules: res.rows[0].form_capture_rules || [] });
+    } catch (err) {
+      fastify.log.error(err, 'Error getting form capture rules');
+      return reply.status(500).send({ error: 'Internal Server Error' });
+    }
+  });
+
+  fastify.put('/admin/projects/:id/form-capture', async (
+    request: FastifyRequest<{ Params: { id: string }; Body: { rules: any[] } }>,
+    reply: FastifyReply
+  ) => {
+    const { id } = request.params;
+    const rules = Array.isArray(request.body?.rules) ? request.body.rules : [];
+    try {
+      const res = await query(
+        'UPDATE clients SET form_capture_rules = $1 WHERE id = $2 RETURNING form_capture_rules',
+        [JSON.stringify(rules), id]
+      );
+      if (res.rows.length === 0) return reply.status(404).send({ error: 'Not Found', message: 'Project not found' });
+      return reply.status(200).send({ success: true, rules: res.rows[0].form_capture_rules });
+    } catch (err) {
+      fastify.log.error(err, 'Error updating form capture rules');
+      return reply.status(500).send({ error: 'Internal Server Error' });
+    }
+  });
+
   fastify.delete('/admin/projects/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     const { id } = request.params;
     try {

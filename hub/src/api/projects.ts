@@ -50,3 +50,20 @@ export async function deleteProject(id: string): Promise<void> {
   if (USE_MOCKS) return;
   await apiClient.delete(`/admin/projects/${id}`);
 }
+
+export interface FormCaptureRule {
+  buttonText: string[];
+  eventName: string;
+  customData?: Record<string, string>;
+}
+
+export async function getFormCaptureRules(id: string): Promise<FormCaptureRule[]> {
+  if (USE_MOCKS) return [];
+  const res = await apiClient.get<{ rules: FormCaptureRule[] }>(`/admin/projects/${id}/form-capture`);
+  return res.data.rules;
+}
+
+export async function saveFormCaptureRules(id: string, rules: FormCaptureRule[]): Promise<void> {
+  if (USE_MOCKS) return;
+  await apiClient.put(`/admin/projects/${id}/form-capture`, { rules });
+}

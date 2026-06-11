@@ -380,6 +380,9 @@ export default async function eventRoutes(fastify: FastifyInstance, _options: Fa
       return reply.status(404).type('application/javascript').send('console.warn("TrackServer client not found");');
     }
 
+    const fcRes = await query('SELECT form_capture_rules FROM clients WHERE id = $1 LIMIT 1', [client.id]);
+    const formCaptureRules = fcRes.rows[0]?.form_capture_rules || [];
+
     const publicConfig = {
       endpoint: `https://${host}/api/v1/event`,
       source_id: client.source_id || client.id,
@@ -391,7 +394,9 @@ export default async function eventRoutes(fastify: FastifyInstance, _options: Fa
     const script = `
 (function(){
   var CONFIG = ${JSON.stringify(publicConfig)};
+  var _serverRules = ${JSON.stringify(formCaptureRules)};
   var existingConfig = window.TrackServerConfig || {};
+  existingConfig.formCapture = (existingConfig.formCapture || []).concat(_serverRules);
   var autoPageView = existingConfig.autoPageView !== false;
   var autoCaptureForm = existingConfig.autoCaptureForm === true;
 
