@@ -525,6 +525,20 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
         [id, from, to]
       );
 
+      const countriesRes = await query(
+        `SELECT
+           request_payload->'metadata'->>'geo_country' AS label,
+           COUNT(*) AS value
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+           AND request_payload->'metadata'->>'geo_country' IS NOT NULL
+           AND request_payload->'metadata'->>'geo_country' != ''
+         GROUP BY label
+         ORDER BY value DESC
+         LIMIT 10`,
+        [id, from, to]
+      );
+
       const originsRes = await query(
         `SELECT
            COALESCE(request_payload->'metadata'->>'utm_source', 'direto') AS label,
@@ -571,6 +585,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
         devices: devicesRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
         cities: citiesRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
         states: statesRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
+        countries: countriesRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
         origins: originsRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
       });
     } catch (err) {

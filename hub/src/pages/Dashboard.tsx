@@ -222,6 +222,33 @@ export function Dashboard() {
           </ChartPanel>
         </div>
 
+        {/* Charts row 3 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <ChartPanel title="Top Estados">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={metrics?.states || []} layout="vertical" margin={{ left: 10, right: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#1a1f2e" />
+                <XAxis type="number" tick={AXIS_TICK} />
+                <YAxis type="category" dataKey="label" tick={{ ...AXIS_TICK, fontSize: 11 }} width={80} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                <Bar dataKey="value" name="Visitas" fill="#a78bfa" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+
+          <ChartPanel title="Top Países">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={metrics?.countries || []} layout="vertical" margin={{ left: 10, right: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#1a1f2e" />
+                <XAxis type="number" tick={AXIS_TICK} />
+                <YAxis type="category" dataKey="label" tick={{ ...AXIS_TICK, fontSize: 11 }} width={80} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                <Bar dataKey="value" name="Visitas" fill="#f472b6" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+        </div>
+
         {/* Summary */}
         {metrics && (
           <div

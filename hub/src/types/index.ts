@@ -69,6 +69,7 @@ export interface MetricsData {
   devices: ChartItem[];
   cities: ChartItem[];
   states: ChartItem[];
+  countries: ChartItem[];
   origins: ChartItem[];
 }
 
