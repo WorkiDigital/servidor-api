@@ -135,18 +135,9 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
 
   fastify.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.url.startsWith('/admin/')) return;
-    if (request.url === '/admin/login' || request.url.startsWith('/admin/debug-resolve')) return;
+    if (request.url === '/admin/login') return;
     if (!isAdminAuthorized(request)) {
       return reply.status(401).send({ error: 'Unauthorized', message: 'Invalid administrative credentials' });
-    }
-  });
-
-  fastify.get('/admin/debug-resolve', async (_request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      const res = await query('SELECT id, status, source_id, tracking_domain, subdomain, source_slug FROM clients');
-      return reply.status(200).send({ clients: res.rows });
-    } catch (err: any) {
-      return reply.status(500).send({ error: err.message });
     }
   });
 
