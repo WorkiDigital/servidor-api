@@ -250,6 +250,10 @@ async function enqueueEvent(client: ClientRecord, event: {
     metadata: event.metadata || {},
   };
 
+  const dedupKey = `dedup:${client.id}:${event.event_id}`;
+  const isNew = await redis.set(dedupKey, '1', 'EX', 86400, 'NX');
+  if (!isNew) return;
+
   await redis.lpush('queue:events', JSON.stringify(payload));
 }
 
