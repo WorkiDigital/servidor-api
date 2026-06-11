@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import { LayoutDashboard, Settings, Users, FolderOpen, LogOut, Menu, Activity, ChevronLeft } from 'lucide-react';
 
 interface NavItem {
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   to: string;
 }
 
@@ -19,61 +20,91 @@ export function Layout({ children, projectName }: LayoutProps) {
 
   const nav: NavItem[] = id
     ? [
-        { label: 'Dashboard', icon: '📊', to: `/hub/projects/${id}/dashboard` },
-        { label: 'Configuração Meta', icon: '⚙️', to: `/hub/projects/${id}/config` },
-        { label: 'Explorador de Leads', icon: '👥', to: `/hub/projects/${id}/leads` },
+        { label: 'Dashboard', icon: <LayoutDashboard size={16} />, to: `/hub/projects/${id}/dashboard` },
+        { label: 'Configuração Meta', icon: <Settings size={16} />, to: `/hub/projects/${id}/config` },
+        { label: 'Explorador de Leads', icon: <Users size={16} />, to: `/hub/projects/${id}/leads` },
       ]
     : [];
 
   const isActive = (to: string) => location.pathname === to;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar overlay mobile */}
+    <div className="min-h-screen flex" style={{ backgroundColor: '#080a10' }}>
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-20 lg:hidden"
+          className="fixed inset-0 bg-black/60 z-20 lg:hidden backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex flex-col transition-transform duration-200 ${
+        className={`fixed lg:static inset-y-0 left-0 z-30 w-64 flex flex-col transition-transform duration-200 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
+        style={{ backgroundColor: '#0d1018', borderRight: '1px solid #1a1f2e' }}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center px-5 border-b border-gray-200">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center text-white text-sm font-bold">T</div>
+        <div className="h-16 flex items-center px-5" style={{ borderBottom: '1px solid #1a1f2e' }}>
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(135deg, #2dd4bf, #0d9488)',
+                boxShadow: '0 4px 12px rgba(45, 212, 191, 0.25)',
+              }}
+            >
+              <Activity size={14} className="text-white" />
+            </div>
             <div>
-              <div className="text-sm font-bold text-gray-900">TrackServer</div>
-              <div className="text-xs text-gray-400">Hub v5.0</div>
+              <div className="text-sm font-bold text-white tracking-tight">TrackServer</div>
+              <div className="text-xs" style={{ color: '#475569' }}>Hub v5.0</div>
             </div>
           </div>
         </div>
 
         {/* Project name */}
         {projectName && (
-          <div className="px-5 py-3 border-b border-gray-100">
-            <Link to="/hub/projects" className="text-xs text-teal-600 hover:underline">← Todos os Projetos</Link>
-            <div className="text-sm font-semibold text-gray-800 mt-1 truncate">{projectName}</div>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid #1a1f2e' }}>
+            <Link
+              to="/hub/projects"
+              className="flex items-center gap-1 text-xs transition-colors hover:opacity-80"
+              style={{ color: '#2dd4bf' }}
+            >
+              <ChevronLeft size={12} />
+              Todos os Projetos
+            </Link>
+            <div className="text-sm font-semibold mt-1 truncate" style={{ color: '#e2e8f0' }}>
+              {projectName}
+            </div>
           </div>
         )}
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        <nav className="flex-1 px-3 py-4 space-y-0.5">
           {!id && (
             <Link
               to="/hub/projects"
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+              style={
                 location.pathname === '/hub/projects'
-                  ? 'bg-teal-50 text-teal-700'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
+                  ? { backgroundColor: 'rgba(45,212,191,0.08)', color: '#2dd4bf', border: '1px solid rgba(45,212,191,0.2)' }
+                  : { color: '#64748b', border: '1px solid transparent' }
+              }
+              onMouseEnter={(e) => {
+                if (location.pathname !== '/hub/projects') {
+                  (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.04)';
+                  (e.currentTarget as HTMLElement).style.color = '#cbd5e1';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (location.pathname !== '/hub/projects') {
+                  (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
+                  (e.currentTarget as HTMLElement).style.color = '#64748b';
+                }
+              }}
             >
-              <span>🗂️</span>
+              <FolderOpen size={16} />
               Todos os Projetos
             </Link>
           )}
@@ -81,26 +112,49 @@ export function Layout({ children, projectName }: LayoutProps) {
             <Link
               key={item.to}
               to={item.to}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+              style={
                 isActive(item.to)
-                  ? 'bg-teal-50 text-teal-700'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
+                  ? { backgroundColor: 'rgba(45,212,191,0.08)', color: '#2dd4bf', border: '1px solid rgba(45,212,191,0.2)' }
+                  : { color: '#64748b', border: '1px solid transparent' }
+              }
+              onMouseEnter={(e) => {
+                if (!isActive(item.to)) {
+                  (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.04)';
+                  (e.currentTarget as HTMLElement).style.color = '#cbd5e1';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive(item.to)) {
+                  (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
+                  (e.currentTarget as HTMLElement).style.color = '#64748b';
+                }
+              }}
               onClick={() => setSidebarOpen(false)}
             >
-              <span>{item.icon}</span>
+              {item.icon}
               {item.label}
             </Link>
           ))}
         </nav>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-100">
+        <div className="p-4" style={{ borderTop: '1px solid #1a1f2e' }}>
           <button
             onClick={() => { localStorage.removeItem('hub_token'); window.location.href = '/hub/login'; }}
-            className="w-full text-left text-xs text-gray-400 hover:text-red-500 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs transition-all"
+            style={{ color: '#475569' }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.color = '#f87171';
+              (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(248,113,113,0.08)';
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.color = '#475569';
+              (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
+            }}
           >
-            Sair
+            <LogOut size={14} />
+            Sair da conta
           </button>
         </div>
       </aside>
@@ -108,18 +162,32 @@ export function Layout({ children, projectName }: LayoutProps) {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Topbar */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center px-4 gap-4">
+        <header
+          className="h-16 flex items-center px-4 gap-4"
+          style={{ backgroundColor: '#0d1018', borderBottom: '1px solid #1a1f2e' }}
+        >
           <button
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+            className="lg:hidden p-2 rounded-xl transition-all"
+            style={{ color: '#64748b' }}
             onClick={() => setSidebarOpen(true)}
           >
-            ☰
+            <Menu size={18} />
           </button>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 text-xs bg-teal-50 text-teal-700 px-2 py-1 rounded-full font-medium">
-              <span className="w-1.5 h-1.5 bg-teal-500 rounded-full" />
-              online agora
+            <span
+              className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-medium"
+              style={{
+                backgroundColor: 'rgba(45,212,191,0.08)',
+                color: '#2dd4bf',
+                border: '1px solid rgba(45,212,191,0.2)',
+              }}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full animate-pulse"
+                style={{ backgroundColor: '#2dd4bf' }}
+              />
+              online
             </span>
           </div>
         </header>

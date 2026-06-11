@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Copy, Check } from 'lucide-react';
 
 interface CodeBlockProps {
   code: string;
@@ -25,21 +26,35 @@ export function CodeBlock({ code }: CodeBlockProps) {
     .replace(/(window\.\w+|function|var|return)/g, '<span style="color:#569CD6">$1</span>');
 
   return (
-    <div className="relative">
+    <div className="relative rounded-xl overflow-hidden" style={{ border: '1px solid #1e2438' }}>
       <div
-        className="rounded-xl overflow-auto text-xs font-mono leading-relaxed p-4"
-        style={{ background: '#1e1e1e', color: '#d4d4d4', maxHeight: '320px' }}
+        className="overflow-auto text-xs font-mono leading-relaxed p-4"
+        style={{ background: '#080a10', color: '#d4d4d4', maxHeight: '320px' }}
         dangerouslySetInnerHTML={{ __html: highlighted }}
       />
       <button
         onClick={handleCopy}
-        className={`absolute top-3 right-3 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+        className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+        style={
           copied
-            ? 'bg-teal-500 text-white'
-            : 'bg-white/10 text-gray-300 hover:bg-white/20'
-        }`}
+            ? { backgroundColor: 'rgba(45,212,191,0.15)', color: '#2dd4bf', border: '1px solid rgba(45,212,191,0.3)' }
+            : { backgroundColor: 'rgba(255,255,255,0.05)', color: '#64748b', border: '1px solid rgba(255,255,255,0.08)' }
+        }
+        onMouseEnter={(e) => {
+          if (!copied) {
+            (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.09)';
+            (e.currentTarget as HTMLElement).style.color = '#94a3b8';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!copied) {
+            (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.05)';
+            (e.currentTarget as HTMLElement).style.color = '#64748b';
+          }
+        }}
       >
-        {copied ? '✓ Copiado!' : 'Copiar script'}
+        {copied ? <Check size={12} /> : <Copy size={12} />}
+        {copied ? 'Copiado!' : 'Copiar'}
       </button>
     </div>
   );

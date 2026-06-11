@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Download, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getLeads, exportLeadsCsv, deleteAllLeads } from '../api/leads';
 import { getProject } from '../api/projects';
 import { Layout } from '../components/Layout';
@@ -15,27 +16,32 @@ const STATUS_TABS: { label: string; value: string }[] = [
   { label: 'Convertidos', value: 'converted' },
 ];
 
-const TEMP_CONFIG: Record<string, { label: string; color: string; icon: string }> = {
-  cold: { label: 'Frio', color: 'bg-blue-50 text-blue-600', icon: '❄️' },
-  warm: { label: 'Morno', color: 'bg-amber-50 text-amber-600', icon: '🔥' },
-  hot: { label: 'Quente', color: 'bg-red-50 text-red-600', icon: '🔴' },
+const TEMP_CONFIG: Record<string, { label: string; bgColor: string; textColor: string; icon: string }> = {
+  cold: { label: 'Frio', bgColor: 'rgba(59,130,246,0.1)', textColor: '#60a5fa', icon: '❄️' },
+  warm: { label: 'Morno', bgColor: 'rgba(245,158,11,0.1)', textColor: '#fbbf24', icon: '🔥' },
+  hot: { label: 'Quente', bgColor: 'rgba(239,68,68,0.1)', textColor: '#f87171', icon: '🔴' },
 };
 
-const STATUS_CONFIG: Record<LeadStatus, { label: string; color: string }> = {
-  visiting: { label: 'Visitando', color: 'bg-gray-100 text-gray-600' },
-  identified: { label: 'Identificado', color: 'bg-indigo-50 text-indigo-700' },
-  converted: { label: 'Convertido', color: 'bg-teal-50 text-teal-700' },
+const STATUS_CONFIG: Record<LeadStatus, { label: string; bgColor: string; textColor: string }> = {
+  visiting: { label: 'Visitando', bgColor: 'rgba(100,116,139,0.1)', textColor: '#64748b' },
+  identified: { label: 'Identificado', bgColor: 'rgba(129,140,248,0.1)', textColor: '#818cf8' },
+  converted: { label: 'Convertido', bgColor: 'rgba(45,212,191,0.1)', textColor: '#2dd4bf' },
+};
+
+const ORIGIN_COLORS: Record<string, { bg: string; text: string }> = {
+  'Meta ADS': { bg: 'rgba(59,130,246,0.1)', text: '#60a5fa' },
+  Instagram: { bg: 'rgba(244,114,182,0.1)', text: '#f472b6' },
+  Orgânico: { bg: 'rgba(34,197,94,0.1)', text: '#4ade80' },
+  Direto: { bg: 'rgba(100,116,139,0.1)', text: '#94a3b8' },
 };
 
 function OriginChip({ value }: { value: string }) {
-  const colors: Record<string, string> = {
-    'Meta ADS': 'bg-blue-50 text-blue-700',
-    Instagram: 'bg-pink-50 text-pink-700',
-    Orgânico: 'bg-green-50 text-green-700',
-    Direto: 'bg-gray-100 text-gray-600',
-  };
+  const c = ORIGIN_COLORS[value] || { bg: 'rgba(100,116,139,0.1)', text: '#94a3b8' };
   return (
-    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${colors[value] || 'bg-gray-100 text-gray-600'}`}>
+    <span
+      className="text-xs px-2 py-0.5 rounded-full font-medium"
+      style={{ backgroundColor: c.bg, color: c.text }}
+    >
       {value}
     </span>
   );
@@ -63,7 +69,10 @@ export function Leads() {
 
   const deleteMut = useMutation({
     mutationFn: () => deleteAllLeads(id!),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['leads', id] }); setShowDeleteModal(false); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['leads', id] });
+      setShowDeleteModal(false);
+    },
   });
 
   const totalPages = data ? Math.ceil(data.total / (data.limit || 15)) : 1;
@@ -74,77 +83,117 @@ export function Leads() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Explorador de Leads</h1>
-            <p className="text-sm text-gray-500">{data?.total?.toLocaleString('pt-BR') || 0} leads no total</p>
+            <h1 className="text-2xl font-bold" style={{ color: '#f1f5f9' }}>Explorador de Leads</h1>
+            <p className="text-sm mt-0.5" style={{ color: '#475569' }}>
+              {data?.total?.toLocaleString('pt-BR') || 0} leads no total
+            </p>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => exportLeadsCsv(id!)}
-              className="px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all"
+              style={{
+                backgroundColor: '#0d1018',
+                border: '1px solid #1a1f2e',
+                color: '#94a3b8',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = '#252c40';
+                (e.currentTarget as HTMLElement).style.color = '#e2e8f0';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = '#1a1f2e';
+                (e.currentTarget as HTMLElement).style.color = '#94a3b8';
+              }}
             >
-              ↓ Exportar CSV
+              <Download size={14} />
+              Exportar CSV
             </button>
             <button
               onClick={() => setShowDeleteModal(true)}
-              className="px-3 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all"
+              style={{
+                backgroundColor: 'rgba(239,68,68,0.08)',
+                border: '1px solid rgba(239,68,68,0.2)',
+                color: '#f87171',
+              }}
             >
-              🗑 Excluir Todos
+              <Trash2 size={14} />
+              Excluir Todos
             </button>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4">
+        <div
+          className="rounded-2xl p-4 mb-4"
+          style={{ backgroundColor: '#0d1018', border: '1px solid #1a1f2e' }}
+        >
           <div className="flex flex-col sm:flex-row gap-3">
-            {/* Status tabs */}
-            <div className="flex gap-1">
+            <div
+              className="flex gap-1 p-1 rounded-xl"
+              style={{ backgroundColor: '#080a10', border: '1px solid #1a1f2e' }}
+            >
               {STATUS_TABS.map((tab) => (
                 <button
                   key={tab.value}
                   onClick={() => { setStatus(tab.value); setPage(1); }}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                  style={
                     status === tab.value
-                      ? 'bg-teal-500 text-white'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
+                      ? { backgroundColor: '#2dd4bf', color: '#0d1018' }
+                      : { color: '#475569' }
+                  }
+                  onMouseEnter={(e) => {
+                    if (status !== tab.value) {
+                      (e.currentTarget as HTMLElement).style.color = '#94a3b8';
+                      (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.04)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (status !== tab.value) {
+                      (e.currentTarget as HTMLElement).style.color = '#475569';
+                      (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
+                    }
+                  }}
                 >
                   {tab.label}
                 </button>
               ))}
             </div>
-            {/* Search */}
             <input
               type="text"
               value={q}
               onChange={(e) => { setQ(e.target.value); setPage(1); }}
               placeholder="Buscar por e-mail, telefone, cidade..."
-              className="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="flex-1 px-3 py-1.5 rounded-xl text-sm outline-none transition-all placeholder:text-slate-600"
+              style={{ backgroundColor: '#080a10', border: '1px solid #1e2438', color: '#e2e8f0' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = '#2dd4bf'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(45,212,191,0.1)'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = '#1e2438'; e.currentTarget.style.boxShadow = 'none'; }}
             />
           </div>
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ backgroundColor: '#0d1018', border: '1px solid #1a1f2e' }}
+        >
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Lead</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Temp.</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Entrada</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Contato</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Cidade</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Disp.</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Origem</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Meta</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Atividade</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Status</th>
+                <tr style={{ borderBottom: '1px solid #1a1f2e', backgroundColor: '#080a10' }}>
+                  {['Lead', 'Temp.', 'Entrada', 'Contato', 'Cidade', 'Disp.', 'Origem', 'Meta', 'Atividade', 'Status'].map((h) => (
+                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#475569' }}>
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {isLoading
                   ? Array.from({ length: 6 }).map((_, i) => (
-                    <tr key={i} className="border-b border-gray-50">
+                    <tr key={i} style={{ borderBottom: '1px solid #111520' }}>
                       {Array.from({ length: 10 }).map((__, j) => (
                         <td key={j} className="px-4 py-3"><Skeleton className="h-4 w-16" /></td>
                       ))}
@@ -154,30 +203,56 @@ export function Leads() {
                     const temp = TEMP_CONFIG[lead.temp] || TEMP_CONFIG.cold;
                     const st = STATUS_CONFIG[lead.status] || STATUS_CONFIG.visiting;
                     return (
-                      <tr key={lead.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                      <tr
+                        key={lead.id}
+                        style={{ borderBottom: '1px solid #111520' }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.02)'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; }}
+                      >
                         <td className="px-4 py-3">
-                          <div className="font-mono text-xs text-gray-400">{lead.id.slice(0, 8)}…</div>
+                          <div className="font-mono text-xs" style={{ color: '#334155' }}>{lead.id.slice(0, 8)}…</div>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${temp.color}`}>
+                          <span
+                            className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
+                            style={{ backgroundColor: temp.bgColor, color: temp.textColor }}
+                          >
                             {temp.icon} {temp.label}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{formatDate(lead.entrada)}</td>
-                        <td className="px-4 py-3 text-xs text-gray-700 max-w-[120px] truncate">{lead.contato}</td>
-                        <td className="px-4 py-3 text-xs text-gray-600">{lead.cidade}, {lead.estado}</td>
-                        <td className="px-4 py-3 text-xs text-gray-500">{lead.dispositivo}</td>
+                        <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: '#475569' }}>
+                          {formatDate(lead.entrada)}
+                        </td>
+                        <td className="px-4 py-3 text-xs max-w-[120px] truncate" style={{ color: '#94a3b8' }}>
+                          {lead.contato}
+                        </td>
+                        <td className="px-4 py-3 text-xs" style={{ color: '#64748b' }}>
+                          {lead.cidade}, {lead.estado}
+                        </td>
+                        <td className="px-4 py-3 text-xs" style={{ color: '#475569' }}>{lead.dispositivo}</td>
                         <td className="px-4 py-3"><OriginChip value={lead.origem} /></td>
                         <td className="px-4 py-3">
                           {lead.meta ? (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold">META</span>
+                            <span
+                              className="text-xs px-2 py-0.5 rounded-full font-bold"
+                              style={{ backgroundColor: 'rgba(59,130,246,0.1)', color: '#60a5fa' }}
+                            >
+                              META
+                            </span>
                           ) : (
-                            <span className="text-xs text-gray-300">—</span>
+                            <span style={{ color: '#1e2438' }}>—</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{formatDate(lead.ultimaAtividade)}</td>
+                        <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: '#475569' }}>
+                          {formatDate(lead.ultimaAtividade)}
+                        </td>
                         <td className="px-4 py-3">
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${st.color}`}>{st.label}</span>
+                          <span
+                            className="text-xs px-2 py-0.5 rounded-full font-medium"
+                            style={{ backgroundColor: st.bgColor, color: st.textColor }}
+                          >
+                            {st.label}
+                          </span>
                         </td>
                       </tr>
                     );
@@ -186,24 +261,34 @@ export function Leads() {
             </table>
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
-              <span className="text-xs text-gray-500">Página {page} de {totalPages}</span>
+            <div
+              className="flex items-center justify-between px-4 py-3"
+              style={{ borderTop: '1px solid #1a1f2e' }}
+            >
+              <span className="text-xs" style={{ color: '#475569' }}>
+                Página {page} de {totalPages}
+              </span>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="px-3 py-1 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-xl transition-all disabled:opacity-30"
+                  style={{ border: '1px solid #1a1f2e', color: '#64748b' }}
+                  onMouseEnter={(e) => { if (page > 1) (e.currentTarget as HTMLElement).style.borderColor = '#252c40'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = '#1a1f2e'; }}
                 >
-                  ← Anterior
+                  <ChevronLeft size={13} /> Anterior
                 </button>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="px-3 py-1 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-xl transition-all disabled:opacity-30"
+                  style={{ border: '1px solid #1a1f2e', color: '#64748b' }}
+                  onMouseEnter={(e) => { if (page < totalPages) (e.currentTarget as HTMLElement).style.borderColor = '#252c40'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = '#1a1f2e'; }}
                 >
-                  Próxima →
+                  Próxima <ChevronRight size={13} />
                 </button>
               </div>
             </div>
