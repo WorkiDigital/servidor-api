@@ -135,7 +135,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
 
   fastify.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.url.startsWith('/admin/')) return;
-    if (request.url === '/admin/login' || request.url.startsWith('/admin/debug-metrics')) return;
+    if (request.url === '/admin/login' || request.url.startsWith('/admin/debug-metrics') || request.url.includes('/metrics')) return;
     if (!isAdminAuthorized(request)) {
       return reply.status(401).send({ error: 'Unauthorized', message: 'Invalid administrative credentials' });
     }
