@@ -71,6 +71,10 @@ export interface MetricsData {
   states: ChartItem[];
   countries: ChartItem[];
   origins: ChartItem[];
+  campaigns: ChartItem[];
+  mediums: ChartItem[];
+  contents: ChartItem[];
+  terms: ChartItem[];
 }
 
 export type LeadStatus = 'visiting' | 'identified' | 'converted';

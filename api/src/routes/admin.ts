@@ -551,6 +551,62 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
         [id, from, to]
       );
 
+      const campaignsRes = await query(
+        `SELECT
+           request_payload->'metadata'->>'utm_campaign' AS label,
+           COUNT(*) AS value
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+           AND request_payload->'metadata'->>'utm_campaign' IS NOT NULL
+           AND request_payload->'metadata'->>'utm_campaign' != ''
+         GROUP BY label
+         ORDER BY value DESC
+         LIMIT 10`,
+        [id, from, to]
+      );
+
+      const mediumsRes = await query(
+        `SELECT
+           request_payload->'metadata'->>'utm_medium' AS label,
+           COUNT(*) AS value
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+           AND request_payload->'metadata'->>'utm_medium' IS NOT NULL
+           AND request_payload->'metadata'->>'utm_medium' != ''
+         GROUP BY label
+         ORDER BY value DESC
+         LIMIT 10`,
+        [id, from, to]
+      );
+
+      const contentsRes = await query(
+        `SELECT
+           request_payload->'metadata'->>'utm_content' AS label,
+           COUNT(*) AS value
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+           AND request_payload->'metadata'->>'utm_content' IS NOT NULL
+           AND request_payload->'metadata'->>'utm_content' != ''
+         GROUP BY label
+         ORDER BY value DESC
+         LIMIT 10`,
+        [id, from, to]
+      );
+
+      const termsRes = await query(
+        `SELECT
+           request_payload->'metadata'->>'utm_term' AS label,
+           COUNT(*) AS value
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+           AND request_payload->'metadata'->>'utm_term' IS NOT NULL
+           AND request_payload->'metadata'->>'utm_term' != ''
+         GROUP BY label
+         ORDER BY value DESC
+         LIMIT 10`,
+        [id, from, to]
+      );
+
       const faturamentoRes = await query(
         `SELECT COALESCE(SUM((request_payload->'custom_data'->>'value')::numeric), 0) AS total
          FROM events_log
@@ -587,6 +643,10 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
         states: statesRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
         countries: countriesRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
         origins: originsRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
+        campaigns: campaignsRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
+        mediums: mediumsRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
+        contents: contentsRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
+        terms: termsRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
       });
     } catch (err) {
       fastify.log.error(err, 'Error fetching metrics');

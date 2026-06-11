@@ -249,6 +249,57 @@ export function Dashboard() {
           </ChartPanel>
         </div>
 
+        {/* Charts row 4 — UTMs Meta */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <ChartPanel title="Top Campanhas">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={metrics?.campaigns || []} layout="vertical" margin={{ left: 10, right: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#1a1f2e" />
+                <XAxis type="number" tick={AXIS_TICK} />
+                <YAxis type="category" dataKey="label" tick={{ ...AXIS_TICK, fontSize: 11 }} width={120} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                <Bar dataKey="value" name="Sessões" fill="#2dd4bf" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+
+          <ChartPanel title="Top Medium">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={metrics?.mediums || []} layout="vertical" margin={{ left: 10, right: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#1a1f2e" />
+                <XAxis type="number" tick={AXIS_TICK} />
+                <YAxis type="category" dataKey="label" tick={{ ...AXIS_TICK, fontSize: 11 }} width={80} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                <Bar dataKey="value" name="Sessões" fill="#fb923c" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+
+          <ChartPanel title="Top Content">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={metrics?.contents || []} layout="vertical" margin={{ left: 10, right: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#1a1f2e" />
+                <XAxis type="number" tick={AXIS_TICK} />
+                <YAxis type="category" dataKey="label" tick={{ ...AXIS_TICK, fontSize: 11 }} width={120} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                <Bar dataKey="value" name="Sessões" fill="#818cf8" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+
+          <ChartPanel title="Top Term">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={metrics?.terms || []} layout="vertical" margin={{ left: 10, right: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#1a1f2e" />
+                <XAxis type="number" tick={AXIS_TICK} />
+                <YAxis type="category" dataKey="label" tick={{ ...AXIS_TICK, fontSize: 11 }} width={80} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                <Bar dataKey="value" name="Sessões" fill="#22d3ee" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+        </div>
+
         {/* Summary */}
         {metrics && (
           <div
