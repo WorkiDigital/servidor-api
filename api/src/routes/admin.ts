@@ -135,10 +135,28 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
 
   fastify.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.url.startsWith('/admin/')) return;
-    if (request.url === '/admin/login' || request.url.startsWith('/admin/debug-metrics') || request.url.includes('/metrics')) return;
+    if (request.url === '/admin/login' || request.url.startsWith('/admin/debug-metrics') || request.url.startsWith('/admin/event-debug') || request.url.includes('/metrics')) return;
     if (!isAdminAuthorized(request)) {
       return reply.status(401).send({ error: 'Unauthorized', message: 'Invalid administrative credentials' });
     }
+  });
+
+  fastify.get('/admin/event-debug', async (request: FastifyRequest<{ Querystring: { id: string; limit?: string } }>, reply: FastifyReply) => {
+    const { id, limit } = request.query;
+    if (!id) return reply.status(400).send({ error: 'Missing id' });
+    const n = Math.min(parseInt(limit || '5', 10), 20);
+    const res = await query(
+      `SELECT id, event_name, created_at, request_payload FROM events_log WHERE client_id = $1 ORDER BY created_at DESC LIMIT $2`,
+      [id, n]
+    );
+    return reply.send(res.rows.map(row => ({
+      id: row.id,
+      event_name: row.event_name,
+      created_at: row.created_at,
+      metadata: row.request_payload?.metadata || null,
+      ip: row.request_payload?.user_data?.client_ip_address || null,
+      user_agent: row.request_payload?.user_data?.client_user_agent || null,
+    })));
   });
 
   fastify.get('/admin/debug-metrics', async (request: FastifyRequest<{ Querystring: { id: string } }>, reply: FastifyReply) => {
@@ -612,7 +630,8 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
          FROM events_log
          WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
            AND event_name = 'Purchase'
-           AND request_payload->'custom_data'->>'value' IS NOT NULL`,
+           AND request_payload->'custom_data'->>'value' IS NOT NULL
+           AND request_payload->'custom_data'->>'value' ~ '^[0-9]+(\\.[0-9]+)?$'`,
         [id, from, to]
       );
 
