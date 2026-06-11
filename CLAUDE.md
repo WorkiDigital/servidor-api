@@ -80,6 +80,12 @@ CREATE INDEX IF NOT EXISTS idx_events_utm_term
 - `VITE_API_BASE_URL` — variável de ambiente apontando para a API
 - Datas no Dashboard devem usar `useMemo` para evitar loop infinito de refetch
 
+## Projetos / Clientes Ativos
+
+| Projeto | Site | UUID |
+|---|---|---|
+| malinha-da-maternidade | https://pg-malinnha-da-maternidade.vercel.app/ | `d5acd35c-13d7-4ca1-a57a-d88f10ae6805` |
+
 ## Pendente / Próximos Passos
 - Redesign completo do UX/UI do hub (usar skills `ui-ux-pro-max` e `frontend-design`)
 - Adicionar mais plataformas de pagamento no webhook (ex: Eduzz, Monetizze, PerfectPay)
