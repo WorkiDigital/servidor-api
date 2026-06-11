@@ -32,11 +32,6 @@ interface MetaConfigBody {
   name?: string;
 }
 
-const PUBLIC_HOST = process.env.TRACK_SERVER_PUBLIC_HOST || 'track.seudominio.com';
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_cookies_key';
-const ADMIN_USER = process.env.ADMIN_USER || 'admin';
-const ADMIN_PASSWORD = process.env.TRACK_SERVER_ADMIN_SECRET || process.env.ADMIN_PASSWORD || 'admin_secure_pass';
-
 function normalizeHostname(value?: string) {
   return String(value || '')
     .trim()
@@ -45,6 +40,21 @@ function normalizeHostname(value?: string) {
     .replace(/\/.*$/, '')
     .replace(/:\d+$/, '');
 }
+
+const PUBLIC_HOST = normalizeHostname(process.env.TRACK_SERVER_PUBLIC_HOST || 'track.seudominio.com');
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_cookies_key';
+const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+const ADMIN_PASSWORD = process.env.TRACK_SERVER_ADMIN_SECRET || process.env.ADMIN_PASSWORD || 'admin_secure_pass';
+
+function getPublicHost(request: FastifyRequest): string {
+  if (process.env.TRACK_SERVER_PUBLIC_HOST) {
+    return normalizeHostname(process.env.TRACK_SERVER_PUBLIC_HOST);
+  }
+  const hostHeader = request.headers['x-forwarded-host'] || request.headers.host || request.hostname;
+  return normalizeHostname(Array.isArray(hostHeader) ? hostHeader[0] : hostHeader) || 'track.seudominio.com';
+}
+
+
 
 function normalizeSubdomain(value?: string) {
   return String(value || '')
@@ -144,7 +154,8 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
 
   // ─── Projetos (aliases dos clients) ─────────────────────────────────────────
 
-  fastify.get('/admin/projects', async (_request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/admin/projects', async (request: FastifyRequest, reply: FastifyReply) => {
+    const publicHost = getPublicHost(request);
     try {
       const res = await query(`
         SELECT
@@ -162,9 +173,9 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
       const projects = res.rows.map((row: any) => ({
         id: row.id,
         name: row.source_slug || row.subdomain || row.tracking_domain || row.id,
-        domain: row.tracking_domain || `${row.subdomain}.${PUBLIC_HOST}`,
+        domain: row.tracking_domain || `${row.subdomain}.${publicHost}`,
         customDomain: row.tracking_domain || '',
-        defaultDomain: `${row.subdomain || row.id}.${PUBLIC_HOST}`,
+        defaultDomain: `${row.subdomain || row.id}.${publicHost}`,
         subdomain: row.subdomain || '',
         pixelId: row.pixel_id,
         datasetId: row.pixel_id,
@@ -188,6 +199,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
   });
 
   fastify.post('/admin/projects', async (request: FastifyRequest<{ Body: MetaConfigBody }>, reply: FastifyReply) => {
+    const publicHost = getPublicHost(request);
     const body = request.body || {};
     if (!body.name) {
       return reply.status(400).send({ error: 'Bad Request', message: 'name is required' });
@@ -206,9 +218,9 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
         project: {
           id: row.id,
           name: row.source_slug,
-          domain: row.tracking_domain || `${row.subdomain}.${PUBLIC_HOST}`,
+          domain: row.tracking_domain || `${row.subdomain}.${publicHost}`,
           customDomain: row.tracking_domain || '',
-          defaultDomain: `${row.subdomain || row.id}.${PUBLIC_HOST}`,
+          defaultDomain: `${row.subdomain || row.id}.${publicHost}`,
           subdomain: row.subdomain || '',
           pixelId: row.pixel_id,
           hasToken: false,
@@ -225,6 +237,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
   });
 
   fastify.get('/admin/projects/:id', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const publicHost = getPublicHost(request);
     try {
       const res = await query(
         `SELECT id, workspace_id, source_id, source_type, source_slug, tracking_domain, subdomain,
@@ -241,9 +254,9 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
         project: {
           id: row.id,
           name: row.source_slug || row.subdomain,
-          domain: row.tracking_domain || `${row.subdomain}.${PUBLIC_HOST}`,
+          domain: row.tracking_domain || `${row.subdomain}.${publicHost}`,
           customDomain: row.tracking_domain || '',
-          defaultDomain: `${row.subdomain || row.id}.${PUBLIC_HOST}`,
+          defaultDomain: `${row.subdomain || row.id}.${publicHost}`,
           subdomain: row.subdomain || '',
           pixelId: row.pixel_id,
           datasetId: row.pixel_id,
@@ -334,24 +347,25 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
   // ─── Snippet de instalação ───────────────────────────────────────────────────
 
   fastify.get('/admin/projects/:id/snippet', async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+    const publicHost = getPublicHost(request);
     try {
       const res = await query('SELECT id, pixel_id, subdomain, tracking_domain, source_slug FROM clients WHERE id = $1 LIMIT 1', [request.params.id]);
       if (!res.rows[0]) {
         return reply.status(404).send({ error: 'Not Found', message: 'Project not found' });
       }
       const row = res.rows[0];
-      const cnameTarget = PUBLIC_HOST;
-      const clientCname = row.tracking_domain || `${row.subdomain || row.id}.${PUBLIC_HOST}`;
+      const cnameTarget = publicHost;
+      const clientCname = row.tracking_domain || `${row.subdomain || row.id}.${publicHost}`;
       const projectId = row.id;
       const pixelId = row.pixel_id || '';
 
       const scriptUrl = row.tracking_domain 
         ? `https://${row.tracking_domain}/t.js`
-        : `https://${PUBLIC_HOST}/t.js?id=${projectId}`;
+        : `https://${publicHost}/t.js?id=${projectId}`;
       
       const endpointUrl = row.tracking_domain
         ? `https://${row.tracking_domain}`
-        : `https://${PUBLIC_HOST}`;
+        : `https://${publicHost}`;
 
       const script = `<!-- TrackServer Hub - instalação first-party -->
 <script>
