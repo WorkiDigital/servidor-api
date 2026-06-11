@@ -174,9 +174,7 @@ function parseHotmartEvent(body: any): { event_name: string; event_id: string; u
 export default async function webhookRoutes(fastify: FastifyInstance, _options: FastifyPluginOptions) {
 
   // Kiwify
-  fastify.post('/webhook/kiwify', {
-    config: { rawBody: true },
-  }, async (request: FastifyRequest<{ Querystring: { source_id?: string } }>, reply: FastifyReply) => {
+  fastify.post('/webhook/kiwify', async (request: FastifyRequest<{ Querystring: { source_id?: string } }>, reply: FastifyReply) => {
     const sourceId = request.query.source_id;
     if (!sourceId) return reply.status(400).send({ error: 'source_id is required' });
 
@@ -200,9 +198,7 @@ export default async function webhookRoutes(fastify: FastifyInstance, _options: 
   });
 
   // Hotmart
-  fastify.post('/webhook/hotmart', {
-    config: { rawBody: true },
-  }, async (request: FastifyRequest<{ Querystring: { source_id?: string; hottok?: string } }>, reply: FastifyReply) => {
+  fastify.post('/webhook/hotmart', async (request: FastifyRequest<{ Querystring: { source_id?: string; hottok?: string } }>, reply: FastifyReply) => {
     const sourceId = request.query.source_id;
     if (!sourceId) return reply.status(400).send({ error: 'source_id is required' });
 
@@ -210,7 +206,7 @@ export default async function webhookRoutes(fastify: FastifyInstance, _options: 
     if (!client || client.status !== 'active') return reply.status(404).send({ error: 'Client not found' });
 
     const body = request.body as any;
-    const rawBody = (request as any).rawBody as string || JSON.stringify(body);
+    const rawBody = JSON.stringify(body);
 
     // Validação via HMAC-SHA256 ou hottok
     const webhookSecret = process.env[`HOTMART_SECRET_${client.id.replace(/-/g, '_').toUpperCase()}`]
