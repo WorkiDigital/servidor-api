@@ -473,13 +473,76 @@ export default async function eventRoutes(fastify: FastifyInstance, _options: Fa
 
     return eventId;
   }
+  function getButtonText(el){
+    return (el.innerText||el.value||el.getAttribute('aria-label')||'').trim().toLowerCase();
+  }
+  function matchRule(btnText){
+    var rules=existingConfig.formCapture||[];
+    for(var i=0;i<rules.length;i++){
+      var rule=rules[i];
+      var patterns=Array.isArray(rule.buttonText)?rule.buttonText:[rule.buttonText];
+      for(var j=0;j<patterns.length;j++){
+        var p=String(patterns[j]).trim().toLowerCase();
+        if(btnText===p||btnText.indexOf(p)>=0){ return rule; }
+      }
+    }
+    return null;
+  }
+  function extractFormData(form){
+    var data={};
+    if(!form) return data;
+    var fields=form.querySelectorAll('input,select,textarea');
+    for(var i=0;i<fields.length;i++){
+      var f=fields[i];
+      var name=(f.name||f.id||'').toLowerCase();
+      var val=(f.value||'').trim();
+      if(!name||!val) continue;
+      if(/email/.test(name)) data.email=val;
+      else if(/phone|tel|whatsapp|celular|fone/.test(name)) data.phone=val;
+      else if(/first.?name|nome/.test(name)) data.first_name=val;
+      else if(/last.?name|sobrenome/.test(name)) data.last_name=val;
+    }
+    return data;
+  }
+  function setupFormCapture(){
+    if(!existingConfig.formCapture||!existingConfig.formCapture.length) return;
+    var fired={};
+    document.addEventListener('submit', function(e){
+      var form=e.target;
+      var btn=form.querySelector('[type=submit]')||form.querySelector('button');
+      if(!btn) return;
+      var btnText=getButtonText(btn);
+      var rule=matchRule(btnText);
+      if(!rule) return;
+      var key=btnText+'|'+window.location.href;
+      if(fired[key]) return;
+      fired[key]=1;
+      setTimeout(function(){ delete fired[key]; }, 3000);
+      var userData=extractFormData(form);
+      track(rule.eventName||'Lead', rule.customData||{}, userData);
+    }, true);
+    document.addEventListener('click', function(e){
+      var btn=e.target;
+      if(btn.tagName!=='BUTTON'&&btn.tagName!=='INPUT'&&btn.tagName!=='A') return;
+      if(btn.form||btn.closest('form')) return;
+      var btnText=getButtonText(btn);
+      var rule=matchRule(btnText);
+      if(!rule) return;
+      var key=btnText+'|'+window.location.href;
+      if(fired[key]) return;
+      fired[key]=1;
+      setTimeout(function(){ delete fired[key]; }, 3000);
+      track(rule.eventName||'Lead', rule.customData||{}, {});
+    }, true);
+  }
+
   window.TrackServer={ track:track, getSession:getSession, config:CONFIG };
   if(autoPageView){
     var run=function(){ track('PageView', {}, {}, { event_id:'pageview_'+uuid() }); };
     if(document.readyState==='complete'||document.readyState==='interactive') run();
     else document.addEventListener('DOMContentLoaded', run);
   }
-  if(autoCaptureForm){ console.warn('[TrackServer] autoCaptureForm is intentionally disabled in this SDK version. Use TrackServer.track manually.'); }
+  setupFormCapture();
 })();`;
 
     return reply
