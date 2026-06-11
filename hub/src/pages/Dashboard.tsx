@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -42,7 +42,7 @@ const KPI_COLORS = ['#10b981', '#6366f1', '#f97316', '#8b5cf6', '#ec4899', '#06b
 export function Dashboard() {
   const { id } = useParams<{ id: string }>();
   const [preset, setPreset] = useState<DatePreset>('30d');
-  const { from, to } = presetToDates(preset);
+  const { from, to } = useMemo(() => presetToDates(preset), [preset]);
 
   const { data: project } = useQuery({ queryKey: ['project', id], queryFn: () => getProject(id!), enabled: !!id });
   const { data: metrics, isLoading } = useQuery({
