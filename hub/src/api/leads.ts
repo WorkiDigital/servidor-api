@@ -33,7 +33,11 @@ export async function exportLeadsCsv(projectId: string): Promise<void> {
 
 export async function deleteAllLeads(projectId: string): Promise<void> {
   if (USE_MOCKS) return;
+  const token = localStorage.getItem('hub_token') || '';
   await apiClient.delete(`/admin/projects/${projectId}/leads`, {
-    headers: { 'X-Confirm': 'delete-all' },
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'X-Confirm': 'delete-all',
+    },
   });
 }
