@@ -44,6 +44,36 @@ npx skills add vercel-labs/agent-skills --skill frontend-design -g
 - Tabela `clients`: inclui `form_capture_rules JSONB DEFAULT '[]'` (migration 002)
 - Tabela `events_log`: `request_payload JSONB` contém o evento completo com `metadata.geo_*`
 
+### Índices recomendados (rodar uma vez no banco)
+```sql
+-- Obrigatório: índice composto para todas as queries de métricas
+CREATE INDEX IF NOT EXISTS idx_events_log_client_created
+  ON events_log(client_id, created_at DESC);
+
+-- Geo
+CREATE INDEX IF NOT EXISTS idx_events_geo_city
+  ON events_log((request_payload->'metadata'->>'geo_city'));
+
+CREATE INDEX IF NOT EXISTS idx_events_geo_state
+  ON events_log((request_payload->'metadata'->>'geo_state'));
+
+CREATE INDEX IF NOT EXISTS idx_events_geo_country
+  ON events_log((request_payload->'metadata'->>'geo_country'));
+
+-- UTMs Meta
+CREATE INDEX IF NOT EXISTS idx_events_utm_campaign
+  ON events_log((request_payload->'metadata'->>'utm_campaign'));
+
+CREATE INDEX IF NOT EXISTS idx_events_utm_medium
+  ON events_log((request_payload->'metadata'->>'utm_medium'));
+
+CREATE INDEX IF NOT EXISTS idx_events_utm_content
+  ON events_log((request_payload->'metadata'->>'utm_content'));
+
+CREATE INDEX IF NOT EXISTS idx_events_utm_term
+  ON events_log((request_payload->'metadata'->>'utm_term'));
+```
+
 ## Hub (Frontend)
 - Stack: React + Vite + TailwindCSS + TanStack Query + Recharts
 - Arquivos principais: `hub/src/pages/`, `hub/src/components/`, `hub/src/api/`
