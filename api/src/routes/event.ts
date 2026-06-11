@@ -337,7 +337,7 @@ export default async function eventRoutes(fastify: FastifyInstance, _options: Fa
     return reply.status(200).send({ success: true, event_id: body.event_id });
   });
 
-  fastify.get('/snippet.js', async (request: FastifyRequest, reply: FastifyReply) => {
+  const serveSnippet = async (request: FastifyRequest, reply: FastifyReply) => {
     const host = extractHost(request);
     const client = await resolveClient({ host });
 
@@ -431,5 +431,8 @@ export default async function eventRoutes(fastify: FastifyInstance, _options: Fa
       .header('Cache-Control', 'no-store')
       .type('application/javascript')
       .send(script);
-  });
+  };
+
+  fastify.get('/snippet.js', serveSnippet);
+  fastify.get('/t.js', serveSnippet);
 }
