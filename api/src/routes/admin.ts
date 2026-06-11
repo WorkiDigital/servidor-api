@@ -487,7 +487,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
       const devicesRes = await query(
         `SELECT
            CASE
-             WHEN request_payload->>'user_agent' ILIKE '%mobile%' THEN 'Mobile'
+             WHEN request_payload->'user_data'->>'client_user_agent' ILIKE '%mobile%' THEN 'Mobile'
              ELSE 'Desktop'
            END AS label,
            COUNT(*) AS value
@@ -497,13 +497,62 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
         [id, from, to]
       );
 
+      const citiesRes = await query(
+        `SELECT
+           request_payload->'user_data'->>'ct' AS label,
+           COUNT(*) AS value
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+           AND request_payload->'user_data'->>'ct' IS NOT NULL
+           AND request_payload->'user_data'->>'ct' != ''
+         GROUP BY label
+         ORDER BY value DESC
+         LIMIT 10`,
+        [id, from, to]
+      );
+
+      const statesRes = await query(
+        `SELECT
+           request_payload->'user_data'->>'st' AS label,
+           COUNT(*) AS value
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+           AND request_payload->'user_data'->>'st' IS NOT NULL
+           AND request_payload->'user_data'->>'st' != ''
+         GROUP BY label
+         ORDER BY value DESC
+         LIMIT 10`,
+        [id, from, to]
+      );
+
+      const originsRes = await query(
+        `SELECT
+           COALESCE(request_payload->'metadata'->>'utm_source', 'direto') AS label,
+           COUNT(*) AS value
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+         GROUP BY label
+         ORDER BY value DESC
+         LIMIT 10`,
+        [id, from, to]
+      );
+
+      const faturamentoRes = await query(
+        `SELECT COALESCE(SUM((request_payload->'custom_data'->>'value')::numeric), 0) AS total
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+           AND event_name = 'Purchase'
+           AND request_payload->'custom_data'->>'value' IS NOT NULL`,
+        [id, from, to]
+      );
+
       const { visitantes, leads, conversoes } = totalRes.rows[0] || {};
 
       return reply.status(200).send({
         visitantes: parseInt(visitantes || '0', 10),
         leads: parseInt(leads || '0', 10),
         conversoes: parseInt(conversoes || '0', 10),
-        faturamento: 0,
+        faturamento: parseFloat(faturamentoRes.rows[0]?.total || '0'),
         instagram: 0,
         metaAds: parseInt(visitantes || '0', 10),
         growth: growthRes.rows.map((r: any) => ({
@@ -520,9 +569,9 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
           convertidos: parseInt(conversoes || '0', 10),
         },
         devices: devicesRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
-        cities: [],
-        states: [],
-        origins: [],
+        cities: citiesRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
+        states: statesRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
+        origins: originsRes.rows.map((r: any) => ({ label: r.label, value: parseInt(r.value, 10) })),
       });
     } catch (err) {
       fastify.log.error(err, 'Error fetching metrics');
