@@ -345,13 +345,21 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
       const projectId = row.id;
       const pixelId = row.pixel_id || '';
 
+      const scriptUrl = row.tracking_domain 
+        ? `https://${row.tracking_domain}/t.js`
+        : `https://${PUBLIC_HOST}/t.js?id=${projectId}`;
+      
+      const endpointUrl = row.tracking_domain
+        ? `https://${row.tracking_domain}`
+        : `https://${PUBLIC_HOST}`;
+
       const script = `<!-- TrackServer Hub - instalação first-party -->
 <script>
   (function(t,s){
     window.TS=window.TS||function(){(TS.q=TS.q||[]).push(arguments)};
-    TS('init','${projectId}',{ pixelId:'${pixelId}', endpoint:'https://${clientCname}' });
+    TS('init','${projectId}',{ pixelId:'${pixelId}', endpoint:'${endpointUrl}' });
     var j=document.createElement('script');j.async=1;
-    j.src='https://${clientCname}/t.js';document.head.appendChild(j);
+    j.src='${scriptUrl}';document.head.appendChild(j);
   })();
 </script>`;
 
