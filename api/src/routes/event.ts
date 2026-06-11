@@ -130,7 +130,18 @@ async function resolveClient(input: {
     clauses.push(clause.replace('?', `$${values.length}`));
   };
 
-  addClause('source_id = ?', input.source_id);
+  const IS_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (input.source_id) {
+    const sourceId = input.source_id.trim();
+    if (IS_UUID.test(sourceId)) {
+      values.push(sourceId);
+      clauses.push(`(source_id = $${values.length} OR id = $${values.length}::uuid)`);
+    } else {
+      values.push(sourceId);
+      clauses.push(`source_id = $${values.length}`);
+    }
+  }
+
   addClause('tracking_domain = ?', trackingDomain);
   addClause('source_slug = ?', sourceSlug);
   addClause('subdomain = ?', sourceSlug);
@@ -367,7 +378,7 @@ export default async function eventRoutes(fastify: FastifyInstance, _options: Fa
 
     const publicConfig = {
       endpoint: `https://${host}/api/v1/event`,
-      source_id: client.source_id,
+      source_id: client.source_id || client.id,
       source_type: client.source_type || 'custom',
       workspace_id: client.workspace_id,
     };
