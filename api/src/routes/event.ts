@@ -337,9 +337,29 @@ export default async function eventRoutes(fastify: FastifyInstance, _options: Fa
     return reply.status(200).send({ success: true, event_id: body.event_id });
   });
 
-  const serveSnippet = async (request: FastifyRequest, reply: FastifyReply) => {
+  const serveSnippet = async (request: FastifyRequest<{ Querystring: { id?: string; subdomain?: string } }>, reply: FastifyReply) => {
     const host = extractHost(request);
-    const client = await resolveClient({ host });
+    const queryId = request.query.id;
+    const querySubdomain = request.query.subdomain;
+
+    let client = null;
+    if (queryId) {
+      const res = await query(
+        `SELECT id, workspace_id, source_id, source_type, source_slug, tracking_domain, subdomain, pixel_id, status 
+         FROM clients WHERE id = $1 LIMIT 1`,
+        [queryId]
+      );
+      client = res.rows[0] || null;
+    } else if (querySubdomain) {
+      const res = await query(
+        `SELECT id, workspace_id, source_id, source_type, source_slug, tracking_domain, subdomain, pixel_id, status 
+         FROM clients WHERE subdomain = $1 LIMIT 1`,
+        [querySubdomain]
+      );
+      client = res.rows[0] || null;
+    } else {
+      client = await resolveClient({ host });
+    }
 
     if (!client || client.status !== 'active') {
       return reply.status(404).type('application/javascript').send('console.warn("TrackServer client not found");');
