@@ -3,6 +3,7 @@ import * as crypto from 'crypto';
 import { query } from '../lib/db';
 import redis from '../lib/redis';
 import { normalizeAndHashUserData } from '../lib/hash';
+import { lookupGeo } from '../lib/geo';
 
 interface ClientRecord {
   id: string;
@@ -31,10 +32,19 @@ async function enqueueWebhookEvent(client: ClientRecord, event: {
   event_source_url?: string;
   user_data: Record<string, any>;
   custom_data?: Record<string, any>;
+  ip?: string;
 }) {
   const dedupKey = `dedup:${client.id}:${event.event_id}`;
   const isNew = await redis.set(dedupKey, '1', 'EX', 86400, 'NX');
   if (!isNew) return;
+
+  const geo = lookupGeo(event.ip);
+  const userData = {
+    ...event.user_data,
+    city: event.user_data.city || geo.city,
+    state: event.user_data.state || geo.state,
+    country: event.user_data.country || geo.country,
+  };
 
   const payload = {
     client_id: client.id,
@@ -48,9 +58,13 @@ async function enqueueWebhookEvent(client: ClientRecord, event: {
     event_time: Math.floor(Date.now() / 1000),
     action_source: 'website',
     event_source_url: event.event_source_url,
-    user_data: normalizeAndHashUserData(event.user_data),
+    user_data: normalizeAndHashUserData(userData),
     custom_data: event.custom_data || {},
-    metadata: {},
+    metadata: {
+      geo_city: geo.city,
+      geo_state: geo.state,
+      geo_country: geo.country,
+    },
   };
 
   await redis.lpush('queue:events', JSON.stringify(payload));
@@ -193,7 +207,7 @@ export default async function webhookRoutes(fastify: FastifyInstance, _options: 
     const parsed = parseKiwifyEvent(body);
     if (!parsed) return reply.status(200).send({ skipped: true });
 
-    await enqueueWebhookEvent(client, parsed);
+    await enqueueWebhookEvent(client, { ...parsed, ip: request.ip });
     return reply.status(200).send({ success: true, event: parsed.event_name, event_id: parsed.event_id });
   });
 
@@ -227,7 +241,7 @@ export default async function webhookRoutes(fastify: FastifyInstance, _options: 
     const parsed = parseHotmartEvent(body);
     if (!parsed) return reply.status(200).send({ skipped: true });
 
-    await enqueueWebhookEvent(client, parsed);
+    await enqueueWebhookEvent(client, { ...parsed, ip: request.ip });
     return reply.status(200).send({ success: true, event: parsed.event_name, event_id: parsed.event_id });
   });
 }

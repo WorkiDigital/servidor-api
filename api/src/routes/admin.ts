@@ -499,12 +499,12 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
 
       const citiesRes = await query(
         `SELECT
-           request_payload->'user_data'->>'ct' AS label,
+           request_payload->'metadata'->>'geo_city' AS label,
            COUNT(*) AS value
          FROM events_log
          WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
-           AND request_payload->'user_data'->>'ct' IS NOT NULL
-           AND request_payload->'user_data'->>'ct' != ''
+           AND request_payload->'metadata'->>'geo_city' IS NOT NULL
+           AND request_payload->'metadata'->>'geo_city' != ''
          GROUP BY label
          ORDER BY value DESC
          LIMIT 10`,
@@ -513,12 +513,12 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
 
       const statesRes = await query(
         `SELECT
-           request_payload->'user_data'->>'st' AS label,
+           request_payload->'metadata'->>'geo_state' AS label,
            COUNT(*) AS value
          FROM events_log
          WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
-           AND request_payload->'user_data'->>'st' IS NOT NULL
-           AND request_payload->'user_data'->>'st' != ''
+           AND request_payload->'metadata'->>'geo_state' IS NOT NULL
+           AND request_payload->'metadata'->>'geo_state' != ''
          GROUP BY label
          ORDER BY value DESC
          LIMIT 10`,
@@ -627,18 +627,20 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
       const items = rowsRes.rows.map((row: any) => {
         const payload = row.request_payload || {};
         const ud = payload.user_data || {};
+        const meta = payload.metadata || {};
         const isMobile = (ud.client_user_agent || '').toLowerCase().includes('mobile');
         const status = row.event_name === 'Purchase' ? 'converted' : row.event_name === 'Lead' ? 'identified' : 'visiting';
         return {
           id: row.id,
           temp: 'cold',
           entrada: row.created_at,
-          contato: ud.em || ud.ph || '—',
-          cidade: ud.ct || '—',
-          estado: ud.st || '—',
+          contato: ud.em?.[0] || ud.ph?.[0] || '—',
+          cidade: meta.geo_city || '—',
+          estado: meta.geo_state || '—',
+          pais: meta.geo_country || '—',
           dispositivo: isMobile ? 'Mobile' : 'Desktop',
-          origem: payload.utm_source || 'direto',
-          meta: !!payload.fbc || !!payload.fbp,
+          origem: meta.utm_source || payload.utm_source || 'direto',
+          meta: !!ud.fbp || !!ud.fbc || !!payload.fbp || !!payload.fbc,
           ultimaAtividade: row.created_at,
           status,
           eventName: row.event_name,

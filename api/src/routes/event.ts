@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyPluginOptions, FastifyRequest, FastifyReply } f
 import { query } from '../lib/db';
 import redis from '../lib/redis';
 import { RawUserData, cleanObject, normalizeAndHashUserData } from '../lib/hash';
+import { lookupGeo } from '../lib/geo';
 
 interface ClientRecord {
   id: string;
@@ -206,14 +207,15 @@ function setTrackingCookies(reply: FastifyReply, host: string, fbp: string, fbc?
 }
 
 function getBrowserUserData(request: FastifyRequest, body: BrowserEventBody, fbp?: string, fbc?: string | null): RawUserData {
+  const geo = lookupGeo(request.ip);
   return cleanObject({
     email: body.email,
     phone: body.phone,
     first_name: body.first_name,
     last_name: body.last_name,
-    city: body.city,
-    state: body.state,
-    country: body.country,
+    city: body.city || geo.city,
+    state: body.state || geo.state,
+    country: body.country || geo.country,
     zip: body.zip,
     external_id: body.external_id,
     client_ip_address: request.ip,
@@ -221,6 +223,15 @@ function getBrowserUserData(request: FastifyRequest, body: BrowserEventBody, fbp
     fbp,
     fbc,
   }) as RawUserData;
+}
+
+function getGeoMetadata(request: FastifyRequest, body: BrowserEventBody): Record<string, string> {
+  const geo = lookupGeo(request.ip);
+  return cleanObject({
+    geo_city: body.city || geo.city,
+    geo_state: body.state || geo.state,
+    geo_country: body.country || geo.country,
+  }) as Record<string, string>;
 }
 
 async function enqueueEvent(client: ClientRecord, event: {
@@ -305,7 +316,7 @@ export default async function eventRoutes(fastify: FastifyInstance, _options: Fa
       action_source: body.action_source,
       user_data: getBrowserUserData(request, body, finalFbp, finalFbc),
       custom_data: body.custom_data,
-      metadata: body.metadata,
+      metadata: { ...getGeoMetadata(request, body), ...(body.metadata || {}) },
     });
 
     return reply.status(200).send({ success: true, event_id: body.event_id, fbp: finalFbp, fbc: finalFbc || null });
