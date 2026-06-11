@@ -33,6 +33,7 @@ export function ProjectConfig() {
   const [accessToken, setAccessToken] = useState('');
   const [testEventCode, setTestEventCode] = useState('');
   const [domain, setDomain] = useState('');
+  const [domainType, setDomainType] = useState<'default' | 'custom'>('default');
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -41,7 +42,8 @@ export function ProjectConfig() {
       setDatasetId(project.datasetId || project.pixelId || '');
       setApiVersion(project.apiVersion || 'v22.0');
       setTestEventCode(project.testEventCode || '');
-      setDomain(project.domain || '');
+      setDomain(project.customDomain || '');
+      setDomainType(project.customDomain ? 'custom' : 'default');
     }
   }, [project]);
 
@@ -52,7 +54,7 @@ export function ProjectConfig() {
       apiVersion,
       accessToken: accessToken || undefined,
       testEventCode: testEventCode || undefined,
-      domain: domain || undefined,
+      domain: domainType === 'default' ? '' : (domain || undefined),
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['project', id] });
@@ -134,14 +136,66 @@ export function ProjectConfig() {
               />
             </FormField>
 
-            <FormField label="Domínio do cliente" hint="CNAME que aponta para o TrackServer">
-              <Input
-                value={domain}
-                onChange={(e) => setDomain(e.target.value)}
-                placeholder="track.minhaloja.com.br"
-                className="col-span-2"
-              />
-            </FormField>
+            <div className="col-span-1 sm:col-span-2 border-t border-gray-100 pt-4 mt-2">
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                </svg>
+                <h3 className="text-sm font-semibold text-gray-800">Domínio de Tracking</h3>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-medium text-gray-500 block mb-2">Tipo de domínio</label>
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
+                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="domainType"
+                        value="default"
+                        checked={domainType === 'default'}
+                        onChange={() => setDomainType('default')}
+                        className="w-4 h-4 text-teal-600 border-gray-300 focus:ring-teal-500"
+                      />
+                      Usar domínio padrão TrackServer
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="domainType"
+                        value="custom"
+                        checked={domainType === 'custom'}
+                        onChange={() => setDomainType('custom')}
+                        className="w-4 h-4 text-teal-600 border-gray-300 focus:ring-teal-500"
+                      />
+                      Usar domínio próprio
+                    </label>
+                  </div>
+                </div>
+
+                {domainType === 'default' ? (
+                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <label className="text-xs font-medium text-gray-500 block mb-1.5">Domínio padrão inicial</label>
+                    <div className="text-sm font-mono text-gray-700 select-all bg-white px-3 py-2 rounded-lg border border-gray-200 inline-block">
+                      {project?.defaultDomain || 'carregando...'}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2">
+                      O projeto responderá automaticamente no domínio padrão do sistema. Nenhuma configuração de DNS adicional é necessária.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <FormField label="Domínio próprio do cliente" hint="Ex: track.nomedacliente.com.br. Aponte um registro CNAME para o alvo indicado abaixo">
+                      <Input
+                        value={domain}
+                        onChange={(e) => setDomain(e.target.value)}
+                        placeholder="track.minhaloja.com.br"
+                      />
+                    </FormField>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-4 mt-5 pt-4 border-t border-gray-100">

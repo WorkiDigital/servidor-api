@@ -2,6 +2,9 @@ export interface Project {
   id: string;
   name: string;
   domain: string;
+  customDomain?: string;
+  defaultDomain?: string;
+  subdomain?: string;
   pixelId: string;
   datasetId?: string;
   apiVersion: string;
