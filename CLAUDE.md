@@ -89,3 +89,7 @@ CREATE INDEX IF NOT EXISTS idx_events_utm_term
 ## Pendente / Próximos Passos
 - Redesign completo do UX/UI do hub (usar skills `ui-ux-pro-max` e `frontend-design`)
 - Adicionar mais plataformas de pagamento no webhook (ex: Eduzz, Monetizze, PerfectPay)
+
+## Últimas Atualizações / Correções Críticas
+- **Proteção de Métricas (Dashboard):** Adicionada validação via regex `~ '^[0-9]+(\.[0-9]+)?$'` no PostgreSQL (rota `faturamentoRes`) para evitar que campos não-numéricos no `custom_data.value` causem crash silencioso e tela de carregamento eterno no painel.
+- **Processamento da fila `window.TS.q`:** O script injetável `t.js` agora consome corretamente os eventos engatilhados antes e depois do carregamento (`TS('track', ...)`), permitindo que disparos web de frontends paralelos atinjam o Meta Pixel sem serem ignorados.

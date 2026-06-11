@@ -553,6 +553,23 @@ export default async function eventRoutes(fastify: FastifyInstance, _options: Fa
   }
 
   window.TrackServer={ track:track, getSession:getSession, config:CONFIG };
+  
+  if (window.TS && window.TS.q) {
+    for (var i = 0; i < window.TS.q.length; i++) {
+      var args = window.TS.q[i];
+      if (args[0] === 'track' || args[0] === 'trackCustom') {
+        track(args[1], args[2], args[3], args[4]);
+      }
+    }
+  }
+  
+  window.TS = function() {
+    var args = arguments;
+    if (args[0] === 'track' || args[0] === 'trackCustom') {
+      track(args[1], args[2], args[3], args[4]);
+    }
+  };
+
   if(autoPageView){
     var run=function(){ track('PageView', {}, {}, { event_id:'pageview_'+uuid() }); };
     if(document.readyState==='complete'||document.readyState==='interactive') run();
