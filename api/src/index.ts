@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 
 import eventRoutes from './routes/event';
 import adminRoutes from './routes/admin';
+import webhookRoutes from './routes/webhook';
 
 dotenv.config();
 
@@ -53,9 +54,20 @@ fastify.register(cookie, {
   hook: 'onRequest',
 });
 
+// rawBody para validação HMAC dos webhooks de plataformas de pagamento
+fastify.addContentTypeParser('application/json', { parseAs: 'string' }, (req, body, done) => {
+  (req as any).rawBody = body;
+  try {
+    done(null, JSON.parse(body as string));
+  } catch (err: any) {
+    done(err, undefined);
+  }
+});
+
 // Registrar Rotas da Aplicação
 fastify.register(eventRoutes);
 fastify.register(adminRoutes);
+fastify.register(webhookRoutes);
 
 // Health Check do Container
 fastify.get('/health', async (_request, reply) => {

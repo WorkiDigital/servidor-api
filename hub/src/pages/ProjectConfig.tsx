@@ -334,6 +334,44 @@ export function ProjectConfig() {
           </div>
         </div>
 
+        {/* Bloco C — URLs de Webhook */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
+          <div className="mb-4">
+            <h2 className="text-base font-semibold text-gray-800">URLs de Webhook</h2>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Cole estas URLs nas plataformas de pagamento para enviar eventos de compra automaticamente ao Meta.
+            </p>
+          </div>
+          {project && (
+            <div className="space-y-3">
+              {[
+                { label: 'Kiwify', platform: 'kiwify', color: 'violet' },
+                { label: 'Hotmart', platform: 'hotmart', color: 'orange' },
+              ].map(({ label, platform, color }) => {
+                const base = window.location.origin.replace(/-front\./, '-api.');
+                const url = `${base}/webhook/${platform}?source_id=${project.id}`;
+                return (
+                  <div key={platform} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                    <span className={`text-xs font-bold px-2 py-1 rounded-md bg-${color}-100 text-${color}-700 w-16 text-center shrink-0`}>
+                      {label}
+                    </span>
+                    <code className="flex-1 text-xs font-mono text-gray-700 break-all">{url}</code>
+                    <button
+                      onClick={() => navigator.clipboard.writeText(url)}
+                      className="shrink-0 px-3 py-1.5 text-xs bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors font-medium"
+                    >
+                      Copiar
+                    </button>
+                  </div>
+                );
+              })}
+              <p className="text-xs text-gray-400 mt-1">
+                Para validação por assinatura, configure <code className="bg-gray-100 px-1 rounded">KIWIFY_WEBHOOK_SECRET</code> ou <code className="bg-gray-100 px-1 rounded">HOTMART_WEBHOOK_SECRET</code> nas variáveis de ambiente da API.
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Bloco D — Gerador de Script */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center gap-3 mb-4">
