@@ -135,9 +135,43 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
 
   fastify.addHook('preHandler', async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.url.startsWith('/admin/')) return;
-    if (request.url === '/admin/login') return;
+    if (request.url === '/admin/login' || request.url.startsWith('/admin/debug-metrics')) return;
     if (!isAdminAuthorized(request)) {
       return reply.status(401).send({ error: 'Unauthorized', message: 'Invalid administrative credentials' });
+    }
+  });
+
+  fastify.get('/admin/debug-metrics', async (request: FastifyRequest<{ Querystring: { id: string } }>, reply: FastifyReply) => {
+    const id = request.query.id;
+    const from = new Date(Date.now() - 30 * 86400000).toISOString();
+    const to = new Date().toISOString();
+    try {
+      const totalRes = await query(
+        `SELECT
+           COUNT(*) FILTER (WHERE event_name = 'PageView') AS visitantes,
+           COUNT(*) FILTER (WHERE event_name = 'Lead') AS leads,
+           COUNT(*) FILTER (WHERE event_name = 'Purchase') AS conversoes
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3`,
+        [id, from, to]
+      );
+      const allEvents = await query(
+        `SELECT COUNT(*) FROM events_log WHERE client_id = $1`,
+        [id]
+      );
+      const minMaxRes = await query(
+        `SELECT MIN(created_at), MAX(created_at) FROM events_log WHERE client_id = $1`,
+        [id]
+      );
+      return reply.status(200).send({
+        total: totalRes.rows[0],
+        allEvents: allEvents.rows[0],
+        minMax: minMaxRes.rows[0],
+        from,
+        to
+      });
+    } catch (err: any) {
+      return reply.status(500).send({ error: err.message });
     }
   });
 
