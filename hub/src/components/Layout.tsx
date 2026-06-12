@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { LayoutDashboard, Settings, Users, FolderOpen, LogOut, Menu, Activity, ChevronLeft, BarChart2 } from 'lucide-react';
+import { LayoutDashboard, Settings, Users, FolderOpen, LogOut, Menu, Activity, ChevronLeft, BarChart2, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../hooks/useTheme';
 
 interface NavItem {
   label: string;
@@ -17,6 +18,7 @@ export function Layout({ children, projectName }: LayoutProps) {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { theme, toggle } = useTheme();
 
   const nav: NavItem[] = id
     ? [
@@ -176,6 +178,23 @@ export function Layout({ children, projectName }: LayoutProps) {
           </button>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggle}
+              title={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+              aria-label="Alternar tema"
+              className="p-2 rounded-xl transition-all"
+              style={{ color: 'var(--text-muted)' }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.color = 'var(--nav-hover-text)';
+                (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--nav-hover-bg)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
+                (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
+              }}
+            >
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             <span
               className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-medium"
               style={{

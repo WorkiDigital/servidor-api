@@ -7,6 +7,15 @@
     <title>TrackServer Hub</title>
     <link rel="icon" type="image/svg+xml" href="/hub/favicon.svg" />
     <style>html,body{background:#080a10;margin:0}</style>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('hub_theme') === 'light' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', t);
+          if (t === 'light') document.documentElement.style.background = '#f1f5f9';
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
