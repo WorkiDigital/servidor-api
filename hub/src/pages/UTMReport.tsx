@@ -37,14 +37,14 @@ function presetToDates(preset: DatePreset): { from: string; to: string } {
 }
 
 const TOOLTIP_STYLE = {
-  backgroundColor: '#0d1018',
-  border: '1px solid #1a1f2e',
+  backgroundColor: 'var(--bg-surface)',
+  border: '1px solid var(--border)',
   borderRadius: 10,
-  color: '#e2e8f0',
+  color: 'var(--text-secondary)',
   fontSize: 12,
 };
 const AXIS_TICK = { fontSize: 10, fill: '#475569' };
-const SOURCE_COLORS = ['#2dd4bf', '#818cf8', '#fb923c', '#f472b6', '#22d3ee', '#a78bfa'];
+const SOURCE_COLORS = ['var(--accent)', '#818cf8', '#fb923c', '#f472b6', '#22d3ee', '#a78bfa'];
 
 function formatBRL(value: number) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(value);
@@ -91,7 +91,7 @@ export function UTMReport() {
   const ColHeader = ({ col, label }: { col: typeof sortCol; label: string }) => (
     <th
       className="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wider cursor-pointer select-none transition-colors"
-      style={{ color: sortCol === col ? '#2dd4bf' : '#475569' }}
+      style={{ color: sortCol === col ? 'var(--accent)' : 'var(--text-faint)' }}
       onClick={() => setSortCol(col)}
     >
       {label} {sortCol === col ? '↓' : ''}
@@ -105,12 +105,12 @@ export function UTMReport() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#f1f5f9' }}>Relatório UTM</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#475569' }}>Análise completa de campanhas e origens de tráfego</p>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Relatório UTM</h1>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--text-faint)' }}>Análise completa de campanhas e origens de tráfego</p>
           </div>
           <div
             className="flex gap-1 p-1 rounded-xl"
-            style={{ backgroundColor: '#0d1018', border: '1px solid #1a1f2e' }}
+            style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border)' }}
           >
             {PRESET_OPTIONS.map((opt) => (
               <button
@@ -119,18 +119,18 @@ export function UTMReport() {
                 className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                 style={
                   preset === opt.value
-                    ? { backgroundColor: '#2dd4bf', color: '#0d1018' }
-                    : { color: '#475569' }
+                    ? { backgroundColor: 'var(--accent)', color: 'var(--bg-surface)' }
+                    : { color: 'var(--text-faint)' }
                 }
                 onMouseEnter={(e) => {
                   if (preset !== opt.value) {
-                    (e.currentTarget as HTMLElement).style.color = '#94a3b8';
-                    (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.04)';
+                    (e.currentTarget as HTMLElement).style.color = 'var(--text-soft)';
+                    (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--nav-hover-bg)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (preset !== opt.value) {
-                    (e.currentTarget as HTMLElement).style.color = '#475569';
+                    (e.currentTarget as HTMLElement).style.color = 'var(--text-faint)';
                     (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                   }
                 }}
@@ -153,7 +153,7 @@ export function UTMReport() {
                 label: 'Campanhas ativas',
                 value: report.campaignTable.filter(r => r.campaign !== '(sem campanha)').length,
                 icon: <Target size={16} />,
-                color: '#2dd4bf',
+                color: 'var(--accent)',
                 format: 'number',
               },
               {
@@ -181,15 +181,15 @@ export function UTMReport() {
               <div
                 key={label}
                 className="rounded-2xl overflow-hidden"
-                style={{ backgroundColor: '#0d1018', border: '1px solid #1a1f2e' }}
+                style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border)' }}
               >
                 <div style={{ height: 2, background: `linear-gradient(90deg, ${color}, transparent)` }} />
                 <div className="p-4">
-                  <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider mb-2" style={{ color: '#475569' }}>
+                  <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider mb-2" style={{ color: 'var(--text-faint)' }}>
                     <span style={{ color }}>{icon}</span>
                     {label}
                   </div>
-                  <div className="text-2xl font-bold tabular-nums" style={{ color: '#f1f5f9' }}>
+                  <div className="text-2xl font-bold tabular-nums" style={{ color: 'var(--text-primary)' }}>
                     {format === 'currency' ? formatBRL(value as number) : Number(value).toLocaleString('pt-BR')}
                   </div>
                 </div>
@@ -201,20 +201,20 @@ export function UTMReport() {
         {/* Tabela de campanhas */}
         <div
           className="rounded-2xl mb-4 overflow-hidden"
-          style={{ backgroundColor: '#0d1018', border: '1px solid #1a1f2e' }}
+          style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border)' }}
         >
-          <div className="px-5 py-4" style={{ borderBottom: '1px solid #1a1f2e' }}>
-            <h3 className="text-sm font-semibold" style={{ color: '#94a3b8' }}>
+          <div className="px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+            <h3 className="text-sm font-semibold" style={{ color: 'var(--text-soft)' }}>
               Campanhas — clique no cabeçalho para ordenar
             </h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead style={{ backgroundColor: '#080a10' }}>
+              <thead style={{ backgroundColor: 'var(--bg-base)' }}>
                 <tr>
-                  <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#475569' }}>Campanha</th>
-                  <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#475569' }}>Source</th>
-                  <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: '#475569' }}>Medium</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-faint)' }}>Campanha</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-faint)' }}>Source</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-faint)' }}>Medium</th>
                   <ColHeader col="sessoes" label="Sessões" />
                   <ColHeader col="leads" label="Leads" />
                   <ColHeader col="conversoes" label="Conversões" />
@@ -225,40 +225,40 @@ export function UTMReport() {
               <tbody>
                 {isLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i} style={{ borderTop: '1px solid #1a1f2e' }}>
+                    <tr key={i} style={{ borderTop: '1px solid var(--border)' }}>
                       {Array.from({ length: 8 }).map((_, j) => (
                         <td key={j} className="px-3 py-3">
-                          <div className="h-4 rounded" style={{ backgroundColor: '#1a1f2e', width: j === 0 ? '120px' : '60px' }} />
+                          <div className="h-4 rounded" style={{ backgroundColor: 'var(--border)', width: j === 0 ? '120px' : '60px' }} />
                         </td>
                       ))}
                     </tr>
                   ))
                 ) : sortedTable.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-3 py-8 text-center text-sm" style={{ color: '#475569' }}>
+                    <td colSpan={8} className="px-3 py-8 text-center text-sm" style={{ color: 'var(--text-faint)' }}>
                       Nenhum dado UTM no período selecionado
                     </td>
                   </tr>
                 ) : sortedTable.map((row, i) => (
                   <tr
                     key={i}
-                    style={{ borderTop: '1px solid #1a1f2e' }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.02)'; }}
+                    style={{ borderTop: '1px solid var(--border)' }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--row-hover)'; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; }}
                   >
-                    <td className="px-3 py-3 font-medium max-w-[180px] truncate" style={{ color: '#e2e8f0' }} title={row.campaign}>
+                    <td className="px-3 py-3 font-medium max-w-[180px] truncate" style={{ color: 'var(--text-secondary)' }} title={row.campaign}>
                       {row.campaign}
                     </td>
                     <td className="px-3 py-3">
                       <span
                         className="text-xs px-2 py-0.5 rounded-full font-medium"
-                        style={{ backgroundColor: 'rgba(45,212,191,0.08)', color: '#2dd4bf', border: '1px solid rgba(45,212,191,0.15)' }}
+                        style={{ backgroundColor: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid rgba(45,212,191,0.15)' }}
                       >
                         {row.source}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-xs" style={{ color: '#64748b' }}>{row.medium}</td>
-                    <td className="px-3 py-3 text-right tabular-nums" style={{ color: '#94a3b8' }}>
+                    <td className="px-3 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>{row.medium}</td>
+                    <td className="px-3 py-3 text-right tabular-nums" style={{ color: 'var(--text-soft)' }}>
                       {row.sessoes.toLocaleString('pt-BR')}
                     </td>
                     <td className="px-3 py-3 text-right tabular-nums" style={{ color: '#818cf8' }}>
@@ -267,7 +267,7 @@ export function UTMReport() {
                     <td className="px-3 py-3 text-right tabular-nums" style={{ color: '#fb923c' }}>
                       {row.conversoes.toLocaleString('pt-BR')}
                     </td>
-                    <td className="px-3 py-3 text-right tabular-nums font-semibold" style={{ color: '#2dd4bf' }}>
+                    <td className="px-3 py-3 text-right tabular-nums font-semibold" style={{ color: 'var(--accent)' }}>
                       {formatBRL(row.faturamento)}
                     </td>
                     <td className="px-3 py-3 text-right tabular-nums">
@@ -275,10 +275,10 @@ export function UTMReport() {
                         className="text-xs px-2 py-0.5 rounded-full font-semibold"
                         style={
                           row.taxaConversao >= 3
-                            ? { backgroundColor: 'rgba(45,212,191,0.1)', color: '#2dd4bf' }
+                            ? { backgroundColor: 'rgba(45,212,191,0.1)', color: 'var(--accent)' }
                             : row.taxaConversao >= 1
                             ? { backgroundColor: 'rgba(251,146,60,0.1)', color: '#fb923c' }
-                            : { backgroundColor: 'rgba(100,116,139,0.1)', color: '#64748b' }
+                            : { backgroundColor: 'rgba(100,116,139,0.1)', color: 'var(--text-muted)' }
                         }
                       >
                         {row.taxaConversao.toFixed(1)}%
@@ -296,12 +296,12 @@ export function UTMReport() {
           <ChartPanel title="Funil por Origem (Source)">
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={report?.sourceFunnel || []} margin={{ left: 10, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1a1f2e" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis dataKey="source" tick={AXIS_TICK} />
                 <YAxis tick={AXIS_TICK} width={40} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
-                <Legend wrapperStyle={{ fontSize: 11, color: '#64748b' }} />
-                <Bar dataKey="sessoes" name="Sessões" fill="#2dd4bf" radius={[4, 4, 0, 0]} />
+                <Legend wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }} />
+                <Bar dataKey="sessoes" name="Sessões" fill="var(--accent)" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="leads" name="Leads" fill="#818cf8" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="conversoes" name="Conversões" fill="#fb923c" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -312,31 +312,31 @@ export function UTMReport() {
             <div className="space-y-2 mt-1">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="h-10 rounded-xl" style={{ backgroundColor: '#1a1f2e' }} />
+                  <div key={i} className="h-10 rounded-xl" style={{ backgroundColor: 'var(--border)' }} />
                 ))
               ) : (report?.topCombos || []).length === 0 ? (
-                <p className="text-sm text-center py-6" style={{ color: '#475569' }}>Sem conversões no período</p>
+                <p className="text-sm text-center py-6" style={{ color: 'var(--text-faint)' }}>Sem conversões no período</p>
               ) : (report?.topCombos || []).map((combo, i) => {
                 const maxFat = report!.topCombos[0].faturamento || 1;
                 const pct = Math.max(4, (combo.faturamento / maxFat) * 100);
                 return (
-                  <div key={i} className="rounded-xl p-3 relative overflow-hidden" style={{ backgroundColor: '#080a10', border: '1px solid #1a1f2e' }}>
+                  <div key={i} className="rounded-xl p-3 relative overflow-hidden" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}>
                     <div
                       className="absolute left-0 top-0 bottom-0 rounded-l-xl"
                       style={{ width: `${pct}%`, background: `linear-gradient(90deg, rgba(45,212,191,0.12), transparent)` }}
                     />
                     <div className="relative flex items-center justify-between gap-2">
                       <div className="min-w-0">
-                        <span className="text-xs font-semibold truncate block" style={{ color: '#e2e8f0' }}>
+                        <span className="text-xs font-semibold truncate block" style={{ color: 'var(--text-secondary)' }}>
                           {combo.campaign}
                         </span>
-                        <span className="text-xs" style={{ color: '#475569' }}>{combo.source}</span>
+                        <span className="text-xs" style={{ color: 'var(--text-faint)' }}>{combo.source}</span>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-sm font-bold tabular-nums" style={{ color: '#2dd4bf' }}>
+                        <div className="text-sm font-bold tabular-nums" style={{ color: 'var(--accent)' }}>
                           {formatBRL(combo.faturamento)}
                         </div>
-                        <div className="text-xs" style={{ color: '#64748b' }}>
+                        <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
                           {combo.conversoes} conversão{combo.conversoes !== 1 ? 'ões' : ''}
                         </div>
                       </div>
@@ -352,11 +352,11 @@ export function UTMReport() {
         <ChartPanel title="Evolução de Sessões — Top 5 Campanhas">
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={timelineData} margin={{ top: 5, right: 20, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1a1f2e" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="date" tick={AXIS_TICK} tickFormatter={(v) => String(v).slice(5)} />
               <YAxis tick={AXIS_TICK} width={35} />
               <Tooltip contentStyle={TOOLTIP_STYLE} />
-              <Legend wrapperStyle={{ fontSize: 11, color: '#64748b' }} />
+              <Legend wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }} />
               {campaigns.map((camp, i) => (
                 <Line
                   key={camp}

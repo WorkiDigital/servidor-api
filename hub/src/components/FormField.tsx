@@ -1,7 +1,7 @@
 const INPUT_BASE: React.CSSProperties = {
-  backgroundColor: '#0a0d14',
-  border: '1px solid #1e2438',
-  color: '#e2e8f0',
+  backgroundColor: 'var(--bg-input)',
+  border: '1px solid var(--border-input)',
+  color: 'var(--text-secondary)',
 };
 
 interface FormFieldProps {
@@ -15,13 +15,13 @@ interface FormFieldProps {
 export function FormField({ label, error, hint, required, children }: FormFieldProps) {
   return (
     <div>
-      <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>
+      <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
         {label}
-        {required && <span className="ml-0.5" style={{ color: '#f87171' }}>*</span>}
+        {required && <span className="ml-0.5" style={{ color: 'var(--danger)' }}>*</span>}
       </label>
       {children}
-      {hint && !error && <p className="mt-1.5 text-xs" style={{ color: '#334155' }}>{hint}</p>}
-      {error && <p className="mt-1.5 text-xs" style={{ color: '#f87171' }}>{error}</p>}
+      {hint && !error && <p className="mt-1.5 text-xs" style={{ color: 'var(--text-dim)' }}>{hint}</p>}
+      {error && <p className="mt-1.5 text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
     </div>
   );
 }
@@ -31,20 +31,20 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export function Input({ error, className = '', style, onFocus, onBlur, ...props }: InputProps) {
-  const borderColor = error ? '#f87171' : '#1e2438';
+  const borderColor = error ? 'var(--danger)' : 'var(--border-input)';
   return (
     <input
       className={`w-full px-3 py-2 rounded-xl text-sm outline-none transition-all placeholder:text-slate-600 ${className}`}
       style={{ ...INPUT_BASE, borderColor, ...style }}
       onFocus={(e) => {
-        e.currentTarget.style.borderColor = error ? '#f87171' : '#2dd4bf';
+        e.currentTarget.style.borderColor = error ? 'var(--danger)' : 'var(--accent)';
         e.currentTarget.style.boxShadow = error
           ? '0 0 0 3px rgba(239,68,68,0.1)'
           : '0 0 0 3px rgba(45,212,191,0.1)';
         onFocus?.(e);
       }}
       onBlur={(e) => {
-        e.currentTarget.style.borderColor = error ? '#f87171' : '#1e2438';
+        e.currentTarget.style.borderColor = error ? 'var(--danger)' : 'var(--border-input)';
         e.currentTarget.style.boxShadow = 'none';
         onBlur?.(e);
       }}
@@ -61,14 +61,14 @@ export function Select({ error, className = '', style, onFocus, onBlur, children
   return (
     <select
       className={`w-full px-3 py-2 rounded-xl text-sm outline-none transition-all ${className}`}
-      style={{ ...INPUT_BASE, borderColor: error ? '#f87171' : '#1e2438', ...style }}
+      style={{ ...INPUT_BASE, borderColor: error ? 'var(--danger)' : 'var(--border-input)', ...style }}
       onFocus={(e) => {
-        e.currentTarget.style.borderColor = '#2dd4bf';
+        e.currentTarget.style.borderColor = 'var(--accent)';
         e.currentTarget.style.boxShadow = '0 0 0 3px rgba(45,212,191,0.1)';
         onFocus?.(e);
       }}
       onBlur={(e) => {
-        e.currentTarget.style.borderColor = error ? '#f87171' : '#1e2438';
+        e.currentTarget.style.borderColor = error ? 'var(--danger)' : 'var(--border-input)';
         e.currentTarget.style.boxShadow = 'none';
         onBlur?.(e);
       }}

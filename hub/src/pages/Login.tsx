@@ -27,11 +27,11 @@ export function Login() {
   };
 
   const focusStyle = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderColor = '#2dd4bf';
+    e.currentTarget.style.borderColor = 'var(--accent)';
     e.currentTarget.style.boxShadow = '0 0 0 3px rgba(45,212,191,0.1)';
   };
   const blurStyle = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.currentTarget.style.borderColor = '#1e2438';
+    e.currentTarget.style.borderColor = 'var(--border-input)';
     e.currentTarget.style.boxShadow = 'none';
   };
 
@@ -39,23 +39,23 @@ export function Login() {
     <div
       className="min-h-screen flex items-center justify-center p-4"
       style={{
-        background: 'radial-gradient(ellipse at 50% 0%, rgba(45,212,191,0.07) 0%, #080a10 65%)',
-        backgroundColor: '#080a10',
+        background: 'radial-gradient(ellipse at 50% 0%, rgba(45,212,191,0.07) 0%, var(--bg-base) 65%)',
+        backgroundColor: 'var(--bg-base)',
       }}
     >
       <div
         className="w-full max-w-sm rounded-2xl p-8"
         style={{
-          backgroundColor: '#0d1018',
-          border: '1px solid #1a1f2e',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02)',
+          backgroundColor: 'var(--bg-surface)',
+          border: '1px solid var(--border)',
+          boxShadow: '0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px var(--row-hover)',
         }}
       >
         <div className="flex justify-center mb-6">
           <div
             className="w-12 h-12 rounded-2xl flex items-center justify-center"
             style={{
-              background: 'linear-gradient(135deg, #2dd4bf, #0d9488)',
+              background: 'linear-gradient(135deg, var(--accent), var(--accent-dark))',
               boxShadow: '0 8px 28px rgba(45,212,191,0.28)',
             }}
           >
@@ -63,16 +63,16 @@ export function Login() {
           </div>
         </div>
 
-        <h1 className="text-xl font-bold text-center mb-1" style={{ color: '#f1f5f9' }}>
+        <h1 className="text-xl font-bold text-center mb-1" style={{ color: 'var(--text-primary)' }}>
           TrackServer Hub
         </h1>
-        <p className="text-sm text-center mb-7" style={{ color: '#475569' }}>
+        <p className="text-sm text-center mb-7" style={{ color: 'var(--text-faint)' }}>
           Acesso administrativo
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>
+            <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
               Usuário
             </label>
             <input
@@ -80,7 +80,7 @@ export function Login() {
               value={user}
               onChange={(e) => setUser(e.target.value)}
               className="w-full px-3 py-2.5 rounded-xl text-sm outline-none transition-all placeholder:text-slate-600"
-              style={{ backgroundColor: '#0a0d14', border: '1px solid #1e2438', color: '#e2e8f0' }}
+              style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-input)', color: 'var(--text-secondary)' }}
               onFocus={focusStyle}
               onBlur={blurStyle}
               placeholder="admin"
@@ -90,7 +90,7 @@ export function Login() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: '#64748b' }}>
+            <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
               Senha
             </label>
             <div className="relative">
@@ -99,7 +99,7 @@ export function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 py-2.5 pr-11 rounded-xl text-sm outline-none transition-all placeholder:text-slate-600"
-                style={{ backgroundColor: '#0a0d14', border: '1px solid #1e2438', color: '#e2e8f0' }}
+                style={{ backgroundColor: 'var(--bg-input)', border: '1px solid var(--border-input)', color: 'var(--text-secondary)' }}
                 onFocus={focusStyle}
                 onBlur={blurStyle}
                 placeholder="••••••••"
@@ -110,9 +110,9 @@ export function Login() {
                 type="button"
                 onClick={() => setShowPass((v) => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                style={{ color: '#475569' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#94a3b8'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '#475569'; }}
+                style={{ color: 'var(--text-faint)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-soft)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-faint)'; }}
               >
                 {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
@@ -125,7 +125,7 @@ export function Login() {
               style={{
                 backgroundColor: 'rgba(239,68,68,0.08)',
                 border: '1px solid rgba(239,68,68,0.2)',
-                color: '#f87171',
+                color: 'var(--danger)',
               }}
             >
               {error}
@@ -137,8 +137,8 @@ export function Login() {
             disabled={loading}
             className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 mt-2"
             style={{
-              background: 'linear-gradient(135deg, #2dd4bf, #0d9488)',
-              color: '#0d1018',
+              background: 'linear-gradient(135deg, var(--accent), var(--accent-dark))',
+              color: 'var(--bg-surface)',
               boxShadow: loading ? 'none' : '0 4px 16px rgba(45,212,191,0.22)',
             }}
           >
@@ -147,7 +147,7 @@ export function Login() {
         </form>
 
         {import.meta.env.VITE_USE_MOCKS === 'true' && (
-          <p className="text-center text-xs mt-5" style={{ color: '#334155' }}>
+          <p className="text-center text-xs mt-5" style={{ color: 'var(--text-dim)' }}>
             Modo mock: user=admin / senha=admin
           </p>
         )}

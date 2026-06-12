@@ -22,8 +22,8 @@ export function ConfirmModal({ title, description, confirmWord, onConfirm, onCan
       <div
         className="w-full max-w-md rounded-2xl p-6"
         style={{
-          backgroundColor: '#0d1018',
-          border: '1px solid #1a1f2e',
+          backgroundColor: 'var(--bg-surface)',
+          border: '1px solid var(--border)',
           boxShadow: '0 25px 60px rgba(0,0,0,0.7)',
         }}
       >
@@ -36,23 +36,23 @@ export function ConfirmModal({ title, description, confirmWord, onConfirm, onCan
                 border: '1px solid rgba(239,68,68,0.2)',
               }}
             >
-              <AlertTriangle size={16} style={{ color: '#f87171' }} />
+              <AlertTriangle size={16} style={{ color: 'var(--danger)' }} />
             </div>
           )}
           <div>
-            <h2 className="text-base font-bold mb-1" style={{ color: '#f1f5f9' }}>{title}</h2>
-            <p className="text-sm" style={{ color: '#64748b' }}>{description}</p>
+            <h2 className="text-base font-bold mb-1" style={{ color: 'var(--text-primary)' }}>{title}</h2>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{description}</p>
           </div>
         </div>
 
         {confirmWord && (
           <div
             className="mb-5 p-3 rounded-xl"
-            style={{ backgroundColor: '#080a10', border: '1px solid #1e2438' }}
+            style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border-input)' }}
           >
-            <p className="text-xs mb-2" style={{ color: '#64748b' }}>
+            <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>
               Digite{' '}
-              <span className="font-bold" style={{ color: '#f1f5f9' }}>{confirmWord}</span>{' '}
+              <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{confirmWord}</span>{' '}
               para confirmar:
             </p>
             <input
@@ -60,13 +60,13 @@ export function ConfirmModal({ title, description, confirmWord, onConfirm, onCan
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="w-full px-3 py-2 rounded-lg text-sm outline-none transition-all placeholder:text-slate-600"
-              style={{ backgroundColor: '#0d1018', border: '1px solid #1e2438', color: '#e2e8f0' }}
+              style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-input)', color: 'var(--text-secondary)' }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#f87171';
+                e.currentTarget.style.borderColor = 'var(--danger)';
                 e.currentTarget.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.1)';
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#1e2438';
+                e.currentTarget.style.borderColor = 'var(--border-input)';
                 e.currentTarget.style.boxShadow = 'none';
               }}
               placeholder={confirmWord}
@@ -79,14 +79,14 @@ export function ConfirmModal({ title, description, confirmWord, onConfirm, onCan
           <button
             onClick={onCancel}
             className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
-            style={{ color: '#64748b', border: '1px solid #1a1f2e' }}
+            style={{ color: 'var(--text-muted)', border: '1px solid var(--border)' }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.04)';
-              (e.currentTarget as HTMLElement).style.color = '#94a3b8';
+              (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--nav-hover-bg)';
+              (e.currentTarget as HTMLElement).style.color = 'var(--text-soft)';
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
-              (e.currentTarget as HTMLElement).style.color = '#64748b';
+              (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
             }}
           >
             Cancelar
@@ -98,7 +98,7 @@ export function ConfirmModal({ title, description, confirmWord, onConfirm, onCan
             style={
               danger
                 ? { backgroundColor: '#ef4444', color: '#fff', boxShadow: '0 4px 12px rgba(239,68,68,0.25)' }
-                : { background: 'linear-gradient(135deg, #2dd4bf, #0d9488)', color: '#0d1018' }
+                : { background: 'linear-gradient(135deg, var(--accent), var(--accent-dark))', color: 'var(--bg-surface)' }
             }
           >
             Confirmar

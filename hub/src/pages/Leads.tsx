@@ -19,13 +19,13 @@ const STATUS_TABS: { label: string; value: string }[] = [
 const TEMP_CONFIG: Record<string, { label: string; bgColor: string; textColor: string; icon: string }> = {
   cold: { label: 'Frio', bgColor: 'rgba(59,130,246,0.1)', textColor: '#60a5fa', icon: '❄️' },
   warm: { label: 'Morno', bgColor: 'rgba(245,158,11,0.1)', textColor: '#fbbf24', icon: '🔥' },
-  hot: { label: 'Quente', bgColor: 'rgba(239,68,68,0.1)', textColor: '#f87171', icon: '🔴' },
+  hot: { label: 'Quente', bgColor: 'rgba(239,68,68,0.1)', textColor: 'var(--danger)', icon: '🔴' },
 };
 
 const STATUS_CONFIG: Record<LeadStatus, { label: string; bgColor: string; textColor: string }> = {
-  visiting: { label: 'Visitando', bgColor: 'rgba(100,116,139,0.1)', textColor: '#64748b' },
+  visiting: { label: 'Visitando', bgColor: 'rgba(100,116,139,0.1)', textColor: 'var(--text-muted)' },
   identified: { label: 'Identificado', bgColor: 'rgba(129,140,248,0.1)', textColor: '#818cf8' },
-  converted: { label: 'Convertido', bgColor: 'rgba(45,212,191,0.1)', textColor: '#2dd4bf' },
+  converted: { label: 'Convertido', bgColor: 'rgba(45,212,191,0.1)', textColor: 'var(--accent)' },
 };
 
 const ORIGIN_COLORS: Record<string, { bg: string; text: string }> = {
@@ -83,8 +83,8 @@ export function Leads() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#f1f5f9' }}>Explorador de Leads</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#475569' }}>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Explorador de Leads</h1>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--text-faint)' }}>
               {data?.total?.toLocaleString('pt-BR') || 0} leads no total
             </p>
           </div>
@@ -93,17 +93,17 @@ export function Leads() {
               onClick={() => exportLeadsCsv(id!)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all"
               style={{
-                backgroundColor: '#0d1018',
-                border: '1px solid #1a1f2e',
-                color: '#94a3b8',
+                backgroundColor: 'var(--bg-surface)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-soft)',
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = '#252c40';
-                (e.currentTarget as HTMLElement).style.color = '#e2e8f0';
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-hover)';
+                (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)';
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = '#1a1f2e';
-                (e.currentTarget as HTMLElement).style.color = '#94a3b8';
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+                (e.currentTarget as HTMLElement).style.color = 'var(--text-soft)';
               }}
             >
               <Download size={14} />
@@ -115,7 +115,7 @@ export function Leads() {
               style={{
                 backgroundColor: 'rgba(239,68,68,0.08)',
                 border: '1px solid rgba(239,68,68,0.2)',
-                color: '#f87171',
+                color: 'var(--danger)',
               }}
             >
               <Trash2 size={14} />
@@ -127,12 +127,12 @@ export function Leads() {
         {/* Filters */}
         <div
           className="rounded-2xl p-4 mb-4"
-          style={{ backgroundColor: '#0d1018', border: '1px solid #1a1f2e' }}
+          style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border)' }}
         >
           <div className="flex flex-col sm:flex-row gap-3">
             <div
               className="flex gap-1 p-1 rounded-xl"
-              style={{ backgroundColor: '#080a10', border: '1px solid #1a1f2e' }}
+              style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}
             >
               {STATUS_TABS.map((tab) => (
                 <button
@@ -141,18 +141,18 @@ export function Leads() {
                   className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={
                     status === tab.value
-                      ? { backgroundColor: '#2dd4bf', color: '#0d1018' }
-                      : { color: '#475569' }
+                      ? { backgroundColor: 'var(--accent)', color: 'var(--bg-surface)' }
+                      : { color: 'var(--text-faint)' }
                   }
                   onMouseEnter={(e) => {
                     if (status !== tab.value) {
-                      (e.currentTarget as HTMLElement).style.color = '#94a3b8';
-                      (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.04)';
+                      (e.currentTarget as HTMLElement).style.color = 'var(--text-soft)';
+                      (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--nav-hover-bg)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (status !== tab.value) {
-                      (e.currentTarget as HTMLElement).style.color = '#475569';
+                      (e.currentTarget as HTMLElement).style.color = 'var(--text-faint)';
                       (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                     }
                   }}
@@ -167,9 +167,9 @@ export function Leads() {
               onChange={(e) => { setQ(e.target.value); setPage(1); }}
               placeholder="Buscar por e-mail, telefone, cidade..."
               className="flex-1 px-3 py-1.5 rounded-xl text-sm outline-none transition-all placeholder:text-slate-600"
-              style={{ backgroundColor: '#080a10', border: '1px solid #1e2438', color: '#e2e8f0' }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = '#2dd4bf'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(45,212,191,0.1)'; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = '#1e2438'; e.currentTarget.style.boxShadow = 'none'; }}
+              style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border-input)', color: 'var(--text-secondary)' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(45,212,191,0.1)'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-input)'; e.currentTarget.style.boxShadow = 'none'; }}
             />
           </div>
         </div>
@@ -177,14 +177,14 @@ export function Leads() {
         {/* Table */}
         <div
           className="rounded-2xl overflow-hidden"
-          style={{ backgroundColor: '#0d1018', border: '1px solid #1a1f2e' }}
+          style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border)' }}
         >
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ borderBottom: '1px solid #1a1f2e', backgroundColor: '#080a10' }}>
+                <tr style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--bg-base)' }}>
                   {['Lead', 'Temp.', 'Entrada', 'Contato', 'Cidade', 'Disp.', 'Origem', 'Meta', 'Atividade', 'Status'].map((h) => (
-                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: '#475569' }}>
+                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-faint)' }}>
                       {h}
                     </th>
                   ))}
@@ -193,7 +193,7 @@ export function Leads() {
               <tbody>
                 {isLoading
                   ? Array.from({ length: 6 }).map((_, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid #111520' }}>
+                    <tr key={i} style={{ borderBottom: '1px solid var(--row-border)' }}>
                       {Array.from({ length: 10 }).map((__, j) => (
                         <td key={j} className="px-4 py-3"><Skeleton className="h-4 w-16" /></td>
                       ))}
@@ -205,12 +205,12 @@ export function Leads() {
                     return (
                       <tr
                         key={lead.id}
-                        style={{ borderBottom: '1px solid #111520' }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.02)'; }}
+                        style={{ borderBottom: '1px solid var(--row-border)' }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--row-hover)'; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; }}
                       >
                         <td className="px-4 py-3">
-                          <div className="font-mono text-xs" style={{ color: '#334155' }}>{lead.id.slice(0, 8)}…</div>
+                          <div className="font-mono text-xs" style={{ color: 'var(--text-dim)' }}>{lead.id.slice(0, 8)}…</div>
                         </td>
                         <td className="px-4 py-3">
                           <span
@@ -220,16 +220,16 @@ export function Leads() {
                             {temp.icon} {temp.label}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: '#475569' }}>
+                        <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: 'var(--text-faint)' }}>
                           {formatDate(lead.entrada)}
                         </td>
-                        <td className="px-4 py-3 text-xs max-w-[120px] truncate" style={{ color: '#94a3b8' }}>
+                        <td className="px-4 py-3 text-xs max-w-[120px] truncate" style={{ color: 'var(--text-soft)' }}>
                           {lead.contato}
                         </td>
-                        <td className="px-4 py-3 text-xs" style={{ color: '#64748b' }}>
+                        <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>
                           {lead.cidade}, {lead.estado}
                         </td>
-                        <td className="px-4 py-3 text-xs" style={{ color: '#475569' }}>{lead.dispositivo}</td>
+                        <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-faint)' }}>{lead.dispositivo}</td>
                         <td className="px-4 py-3"><OriginChip value={lead.origem} /></td>
                         <td className="px-4 py-3">
                           {lead.meta ? (
@@ -240,10 +240,10 @@ export function Leads() {
                               META
                             </span>
                           ) : (
-                            <span style={{ color: '#1e2438' }}>—</span>
+                            <span style={{ color: 'var(--border-input)' }}>—</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: '#475569' }}>
+                        <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: 'var(--text-faint)' }}>
                           {formatDate(lead.ultimaAtividade)}
                         </td>
                         <td className="px-4 py-3">
@@ -264,9 +264,9 @@ export function Leads() {
           {totalPages > 1 && (
             <div
               className="flex items-center justify-between px-4 py-3"
-              style={{ borderTop: '1px solid #1a1f2e' }}
+              style={{ borderTop: '1px solid var(--border)' }}
             >
-              <span className="text-xs" style={{ color: '#475569' }}>
+              <span className="text-xs" style={{ color: 'var(--text-faint)' }}>
                 Página {page} de {totalPages}
               </span>
               <div className="flex gap-2">
@@ -274,9 +274,9 @@ export function Leads() {
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
                   className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-xl transition-all disabled:opacity-30"
-                  style={{ border: '1px solid #1a1f2e', color: '#64748b' }}
-                  onMouseEnter={(e) => { if (page > 1) (e.currentTarget as HTMLElement).style.borderColor = '#252c40'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = '#1a1f2e'; }}
+                  style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}
+                  onMouseEnter={(e) => { if (page > 1) (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-hover)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; }}
                 >
                   <ChevronLeft size={13} /> Anterior
                 </button>
@@ -284,9 +284,9 @@ export function Leads() {
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
                   className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-xl transition-all disabled:opacity-30"
-                  style={{ border: '1px solid #1a1f2e', color: '#64748b' }}
-                  onMouseEnter={(e) => { if (page < totalPages) (e.currentTarget as HTMLElement).style.borderColor = '#252c40'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = '#1a1f2e'; }}
+                  style={{ border: '1px solid var(--border)', color: 'var(--text-muted)' }}
+                  onMouseEnter={(e) => { if (page < totalPages) (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-hover)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; }}
                 >
                   Próxima <ChevronRight size={13} />
                 </button>

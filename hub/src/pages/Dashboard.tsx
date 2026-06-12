@@ -36,14 +36,14 @@ function presetToDates(preset: DatePreset): { from: string; to: string } {
   return { from: presetMap[preset].toISOString(), to };
 }
 
-const DEVICE_COLORS = ['#2dd4bf', '#818cf8'];
-const KPI_COLORS = ['#2dd4bf', '#818cf8', '#fb923c', '#a78bfa', '#f472b6', '#22d3ee'];
+const DEVICE_COLORS = ['var(--accent)', '#818cf8'];
+const KPI_COLORS = ['var(--accent)', '#818cf8', '#fb923c', '#a78bfa', '#f472b6', '#22d3ee'];
 
 const TOOLTIP_STYLE = {
-  backgroundColor: '#0d1018',
-  border: '1px solid #1a1f2e',
+  backgroundColor: 'var(--bg-surface)',
+  border: '1px solid var(--border)',
   borderRadius: 10,
-  color: '#e2e8f0',
+  color: 'var(--text-secondary)',
   fontSize: 12,
 };
 
@@ -75,14 +75,14 @@ export function Dashboard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#f1f5f9' }}>Dashboard</h1>
-            <p className="text-sm mt-0.5" style={{ color: '#475569' }}>{project?.name}</p>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Dashboard</h1>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--text-faint)' }}>{project?.name}</p>
           </div>
 
           {/* Period selector */}
           <div
             className="flex gap-1 p-1 rounded-xl"
-            style={{ backgroundColor: '#0d1018', border: '1px solid #1a1f2e' }}
+            style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border)' }}
           >
             {PRESET_OPTIONS.map((opt) => (
               <button
@@ -91,18 +91,18 @@ export function Dashboard() {
                 className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                 style={
                   preset === opt.value
-                    ? { backgroundColor: '#2dd4bf', color: '#0d1018' }
-                    : { color: '#475569' }
+                    ? { backgroundColor: 'var(--accent)', color: 'var(--bg-surface)' }
+                    : { color: 'var(--text-faint)' }
                 }
                 onMouseEnter={(e) => {
                   if (preset !== opt.value) {
-                    (e.currentTarget as HTMLElement).style.color = '#94a3b8';
-                    (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.04)';
+                    (e.currentTarget as HTMLElement).style.color = 'var(--text-soft)';
+                    (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--nav-hover-bg)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (preset !== opt.value) {
-                    (e.currentTarget as HTMLElement).style.color = '#475569';
+                    (e.currentTarget as HTMLElement).style.color = 'var(--text-faint)';
                     (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                   }
                 }}
@@ -136,20 +136,20 @@ export function Dashboard() {
               <AreaChart data={metrics?.growth || []} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
                 <defs>
                   <linearGradient id="gVisitantes" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2dd4bf" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#2dd4bf" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="var(--accent)" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="gConversoes" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#fb923c" stopOpacity={0.25} />
                     <stop offset="95%" stopColor="#fb923c" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1a1f2e" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis dataKey="date" tick={AXIS_TICK} tickFormatter={(v) => v.slice(5)} />
                 <YAxis tick={AXIS_TICK} width={35} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
-                <Legend wrapperStyle={{ fontSize: 11, color: '#64748b' }} />
-                <Area type="monotone" dataKey="visitantes" name="Visitantes" stroke="#2dd4bf" fill="url(#gVisitantes)" strokeWidth={2} dot={false} />
+                <Legend wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }} />
+                <Area type="monotone" dataKey="visitantes" name="Visitantes" stroke="var(--accent)" fill="url(#gVisitantes)" strokeWidth={2} dot={false} />
                 <Area type="monotone" dataKey="pageviews" name="Pageviews" stroke="#818cf8" fill="none" strokeWidth={1.5} strokeDasharray="4 2" dot={false} />
                 <Area type="monotone" dataKey="conversoes" name="Conversões" stroke="#fb923c" fill="url(#gConversoes)" strokeWidth={2} dot={false} />
               </AreaChart>
@@ -184,7 +184,7 @@ export function Dashboard() {
           <ChartPanel title="Funil de Vendas" className="lg:col-span-1">
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={funnelData} layout="vertical" margin={{ left: 10, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#1a1f2e" />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
                 <XAxis type="number" tick={AXIS_TICK} />
                 <YAxis type="category" dataKey="name" tick={{ ...AXIS_TICK, fontSize: 11 }} width={90} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
@@ -200,7 +200,7 @@ export function Dashboard() {
           <ChartPanel title="Top Cidades">
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={metrics?.cities || []} layout="vertical" margin={{ left: 10, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#1a1f2e" />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
                 <XAxis type="number" tick={AXIS_TICK} />
                 <YAxis type="category" dataKey="label" tick={{ ...AXIS_TICK, fontSize: 11 }} width={80} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
@@ -212,7 +212,7 @@ export function Dashboard() {
           <ChartPanel title="Origens">
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={metrics?.origins || []} layout="vertical" margin={{ left: 10, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#1a1f2e" />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
                 <XAxis type="number" tick={AXIS_TICK} />
                 <YAxis type="category" dataKey="label" tick={{ ...AXIS_TICK, fontSize: 11 }} width={80} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
@@ -227,7 +227,7 @@ export function Dashboard() {
           <ChartPanel title="Top Estados">
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={metrics?.states || []} layout="vertical" margin={{ left: 10, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#1a1f2e" />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
                 <XAxis type="number" tick={AXIS_TICK} />
                 <YAxis type="category" dataKey="label" tick={{ ...AXIS_TICK, fontSize: 11 }} width={80} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
@@ -239,7 +239,7 @@ export function Dashboard() {
           <ChartPanel title="Top Países">
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={metrics?.countries || []} layout="vertical" margin={{ left: 10, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#1a1f2e" />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
                 <XAxis type="number" tick={AXIS_TICK} />
                 <YAxis type="category" dataKey="label" tick={{ ...AXIS_TICK, fontSize: 11 }} width={80} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
@@ -253,9 +253,9 @@ export function Dashboard() {
         {metrics && (
           <div
             className="rounded-2xl p-5"
-            style={{ backgroundColor: '#0d1018', border: '1px solid #1a1f2e' }}
+            style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border)' }}
           >
-            <h3 className="text-sm font-semibold mb-4" style={{ color: '#64748b' }}>
+            <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-muted)' }}>
               Resumo do Período
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
@@ -266,8 +266,8 @@ export function Dashboard() {
                 { label: 'Top Dispositivo', value: metrics.devices[0]?.label || '—' },
               ].map(({ label, value }) => (
                 <div key={label}>
-                  <span className="text-xs block mb-1" style={{ color: '#334155' }}>{label}</span>
-                  <div className="font-semibold text-sm" style={{ color: '#cbd5e1' }}>{value}</div>
+                  <span className="text-xs block mb-1" style={{ color: 'var(--text-dim)' }}>{label}</span>
+                  <div className="font-semibold text-sm" style={{ color: 'var(--nav-hover-text)' }}>{value}</div>
                 </div>
               ))}
             </div>

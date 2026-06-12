@@ -30,7 +30,7 @@ export function Layout({ children, projectName }: LayoutProps) {
   const isActive = (to: string) => location.pathname === to;
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: '#080a10' }}>
+    <div className="min-h-screen flex" style={{ backgroundColor: 'var(--bg-base)' }}>
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 z-20 lg:hidden backdrop-blur-sm"
@@ -43,39 +43,39 @@ export function Layout({ children, projectName }: LayoutProps) {
         className={`fixed lg:static inset-y-0 left-0 z-30 w-64 flex flex-col transition-transform duration-200 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
-        style={{ backgroundColor: '#0d1018', borderRight: '1px solid #1a1f2e' }}
+        style={{ backgroundColor: 'var(--bg-surface)', borderRight: '1px solid var(--border)' }}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center px-5" style={{ borderBottom: '1px solid #1a1f2e' }}>
+        <div className="h-16 flex items-center px-5" style={{ borderBottom: '1px solid var(--border)' }}>
           <div className="flex items-center gap-3">
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center"
               style={{
-                background: 'linear-gradient(135deg, #2dd4bf, #0d9488)',
-                boxShadow: '0 4px 12px rgba(45, 212, 191, 0.25)',
+                background: 'linear-gradient(135deg, var(--accent), var(--accent-dark))',
+                boxShadow: '0 4px 12px var(--accent-glow)',
               }}
             >
               <Activity size={14} className="text-white" />
             </div>
             <div>
               <div className="text-sm font-bold text-white tracking-tight">TrackServer</div>
-              <div className="text-xs" style={{ color: '#475569' }}>Hub v5.0</div>
+              <div className="text-xs" style={{ color: 'var(--text-faint)' }}>Hub v5.0</div>
             </div>
           </div>
         </div>
 
         {/* Project name */}
         {projectName && (
-          <div className="px-4 py-3" style={{ borderBottom: '1px solid #1a1f2e' }}>
+          <div className="px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
             <Link
               to="/hub/projects"
               className="flex items-center gap-1 text-xs transition-colors hover:opacity-80"
-              style={{ color: '#2dd4bf' }}
+              style={{ color: 'var(--accent)' }}
             >
               <ChevronLeft size={12} />
               Todos os Projetos
             </Link>
-            <div className="text-sm font-semibold mt-1 truncate" style={{ color: '#e2e8f0' }}>
+            <div className="text-sm font-semibold mt-1 truncate" style={{ color: 'var(--text-secondary)' }}>
               {projectName}
             </div>
           </div>
@@ -89,19 +89,19 @@ export function Layout({ children, projectName }: LayoutProps) {
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
               style={
                 location.pathname === '/hub/projects'
-                  ? { backgroundColor: 'rgba(45,212,191,0.08)', color: '#2dd4bf', border: '1px solid rgba(45,212,191,0.2)' }
-                  : { color: '#64748b', border: '1px solid transparent' }
+                  ? { backgroundColor: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }
+                  : { color: 'var(--text-muted)', border: '1px solid transparent' }
               }
               onMouseEnter={(e) => {
                 if (location.pathname !== '/hub/projects') {
-                  (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.04)';
-                  (e.currentTarget as HTMLElement).style.color = '#cbd5e1';
+                  (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--nav-hover-bg)';
+                  (e.currentTarget as HTMLElement).style.color = 'var(--nav-hover-text)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (location.pathname !== '/hub/projects') {
                   (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
-                  (e.currentTarget as HTMLElement).style.color = '#64748b';
+                  (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
                 }
               }}
             >
@@ -116,19 +116,19 @@ export function Layout({ children, projectName }: LayoutProps) {
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
               style={
                 isActive(item.to)
-                  ? { backgroundColor: 'rgba(45,212,191,0.08)', color: '#2dd4bf', border: '1px solid rgba(45,212,191,0.2)' }
-                  : { color: '#64748b', border: '1px solid transparent' }
+                  ? { backgroundColor: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }
+                  : { color: 'var(--text-muted)', border: '1px solid transparent' }
               }
               onMouseEnter={(e) => {
                 if (!isActive(item.to)) {
-                  (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.04)';
-                  (e.currentTarget as HTMLElement).style.color = '#cbd5e1';
+                  (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--nav-hover-bg)';
+                  (e.currentTarget as HTMLElement).style.color = 'var(--nav-hover-text)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isActive(item.to)) {
                   (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
-                  (e.currentTarget as HTMLElement).style.color = '#64748b';
+                  (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
                 }
               }}
               onClick={() => setSidebarOpen(false)}
@@ -140,17 +140,17 @@ export function Layout({ children, projectName }: LayoutProps) {
         </nav>
 
         {/* Footer */}
-        <div className="p-4" style={{ borderTop: '1px solid #1a1f2e' }}>
+        <div className="p-4" style={{ borderTop: '1px solid var(--border)' }}>
           <button
             onClick={() => { localStorage.removeItem('hub_token'); window.location.href = '/hub/login'; }}
             className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs transition-all"
-            style={{ color: '#475569' }}
+            style={{ color: 'var(--text-faint)' }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.color = '#f87171';
-              (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(248,113,113,0.08)';
+              (e.currentTarget as HTMLElement).style.color = 'var(--danger)';
+              (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--danger-bg)';
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.color = '#475569';
+              (e.currentTarget as HTMLElement).style.color = 'var(--text-faint)';
               (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
             }}
           >
@@ -165,11 +165,11 @@ export function Layout({ children, projectName }: LayoutProps) {
         {/* Topbar */}
         <header
           className="h-16 flex items-center px-4 gap-4"
-          style={{ backgroundColor: '#0d1018', borderBottom: '1px solid #1a1f2e' }}
+          style={{ backgroundColor: 'var(--bg-surface)', borderBottom: '1px solid var(--border)' }}
         >
           <button
             className="lg:hidden p-2 rounded-xl transition-all"
-            style={{ color: '#64748b' }}
+            style={{ color: 'var(--text-muted)' }}
             onClick={() => setSidebarOpen(true)}
           >
             <Menu size={18} />
@@ -179,14 +179,14 @@ export function Layout({ children, projectName }: LayoutProps) {
             <span
               className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-medium"
               style={{
-                backgroundColor: 'rgba(45,212,191,0.08)',
-                color: '#2dd4bf',
-                border: '1px solid rgba(45,212,191,0.2)',
+                backgroundColor: 'var(--accent-bg)',
+                color: 'var(--accent)',
+                border: '1px solid var(--accent-border)',
               }}
             >
               <span
                 className="w-1.5 h-1.5 rounded-full animate-pulse"
-                style={{ backgroundColor: '#2dd4bf' }}
+                style={{ backgroundColor: 'var(--accent)' }}
               />
               online
             </span>
