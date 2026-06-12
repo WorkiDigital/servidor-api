@@ -51,8 +51,8 @@ export function ProjectsList() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Projetos</h1>
-            <p className="text-sm mt-0.5" style={{ color: 'var(--text-faint)' }}>Gerencie os clientes do TrackServer</p>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Workspaces</h1>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--text-faint)' }}>Gerencie os workspaces do TrackServer</p>
           </div>
           <button
             onClick={() => setShowCreate(true)}
@@ -64,7 +64,7 @@ export function ProjectsList() {
             }}
           >
             <Plus size={15} />
-            Novo Projeto
+            Novo Workspace
           </button>
         </div>
 
@@ -155,11 +155,11 @@ export function ProjectsList() {
                 boxShadow: '0 25px 60px rgba(0,0,0,0.7)',
               }}
             >
-              <h2 className="text-base font-bold mb-5" style={{ color: 'var(--text-primary)' }}>Novo Projeto</h2>
+              <h2 className="text-base font-bold mb-5" style={{ color: 'var(--text-primary)' }}>Novo Workspace</h2>
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-medium mb-1.5 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                    Nome do projeto <span style={{ color: 'var(--danger)' }}>*</span>
+                    Nome do workspace <span style={{ color: 'var(--danger)' }}>*</span>
                   </label>
                   <input
                     type="text"
@@ -207,7 +207,7 @@ export function ProjectsList() {
                     color: 'var(--bg-surface)',
                   }}
                 >
-                  {createMut.isPending ? 'Criando...' : 'Criar'}
+                  {createMut.isPending ? 'Criando...' : 'Criar workspace'}
                 </button>
               </div>
             </div>

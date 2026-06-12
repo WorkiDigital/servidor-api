@@ -75,7 +75,7 @@ export function Layout({ children, projectName }: LayoutProps) {
               style={{ color: 'var(--accent)' }}
             >
               <ChevronLeft size={12} />
-              Todos os Projetos
+              Workspaces
             </Link>
             <div className="text-sm font-semibold mt-1 truncate" style={{ color: 'var(--text-secondary)' }}>
               {projectName}
@@ -108,7 +108,7 @@ export function Layout({ children, projectName }: LayoutProps) {
               }}
             >
               <FolderOpen size={16} />
-              Todos os Projetos
+              Workspaces
             </Link>
           )}
           {nav.map((item) => (
