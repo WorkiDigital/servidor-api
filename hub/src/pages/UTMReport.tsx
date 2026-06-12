@@ -44,7 +44,7 @@ const TOOLTIP_STYLE = {
   fontSize: 12,
 };
 const AXIS_TICK = { fontSize: 10, fill: '#475569' };
-const SOURCE_COLORS = ['var(--accent)', '#818cf8', '#fb923c', '#f472b6', '#22d3ee', '#a78bfa'];
+const SOURCE_COLORS = ['#2dd4bf', '#818cf8', '#fb923c', '#f472b6', '#22d3ee', '#a78bfa'];
 
 function formatBRL(value: number) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(value);
@@ -296,12 +296,12 @@ export function UTMReport() {
           <ChartPanel title="Funil por Origem (Source)">
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={report?.sourceFunnel || []} margin={{ left: 10, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1a1f2e" />
                 <XAxis dataKey="source" tick={AXIS_TICK} />
                 <YAxis tick={AXIS_TICK} width={40} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
                 <Legend wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }} />
-                <Bar dataKey="sessoes" name="Sessões" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="sessoes" name="Sessões" fill="#2dd4bf" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="leads" name="Leads" fill="#818cf8" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="conversoes" name="Conversões" fill="#fb923c" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -352,7 +352,7 @@ export function UTMReport() {
         <ChartPanel title="Evolução de Sessões — Top 5 Campanhas">
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={timelineData} margin={{ top: 5, right: 20, bottom: 0, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1a1f2e" />
               <XAxis dataKey="date" tick={AXIS_TICK} tickFormatter={(v) => String(v).slice(5)} />
               <YAxis tick={AXIS_TICK} width={35} />
               <Tooltip contentStyle={TOOLTIP_STYLE} />
