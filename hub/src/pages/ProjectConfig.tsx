@@ -13,6 +13,14 @@ import { Skeleton } from '../components/Skeleton';
 
 const API_VERSIONS = ['v20.0', 'v21.0', 'v22.0'];
 
+const TABS = [
+  { id: 'integracao', label: 'Integração Meta' },
+  { id: 'formularios', label: 'Formulários' },
+  { id: 'webhooks', label: 'Webhooks' },
+  { id: 'script', label: 'Script' },
+] as const;
+type TabId = (typeof TABS)[number]['id'];
+
 const DARK_CARD: React.CSSProperties = {
   backgroundColor: 'var(--bg-surface)',
   border: '1px solid var(--border)',
@@ -60,6 +68,7 @@ export function ProjectConfig() {
   const [domain, setDomain] = useState('');
   const [domainType, setDomainType] = useState<'default' | 'custom'>('default');
   const [saved, setSaved] = useState(false);
+  const [tab, setTab] = useState<TabId>('integracao');
 
   const { data: formRules = [] } = useQuery({
     queryKey: ['form-capture', id],
@@ -128,6 +137,29 @@ export function ProjectConfig() {
     },
   });
 
+  const statusDot = (color: string) => (
+    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+  );
+
+  function tabDot(tabId: TabId) {
+    if (tabId === 'integracao') {
+      if (project?.lastError) return statusDot('var(--danger)');
+      if (project?.hasToken) return statusDot('var(--accent)');
+    }
+    if (tabId === 'script' && project?.firstEventAt) return statusDot('var(--accent)');
+    if (tabId === 'formularios' && rules.length > 0) {
+      return (
+        <span
+          className="text-[10px] font-semibold px-1.5 rounded-full"
+          style={{ backgroundColor: 'var(--accent-bg)', color: 'var(--accent)' }}
+        >
+          {rules.length}
+        </span>
+      );
+    }
+    return null;
+  }
+
   if (isLoading) {
     return (
       <Layout>
@@ -148,8 +180,46 @@ export function ProjectConfig() {
           <p className="text-sm mt-0.5" style={{ color: 'var(--text-faint)' }}>Configure a integração com Meta Pixel e Conversions API</p>
         </div>
 
-        {/* Bloco A — Integração Meta */}
-        <div className="rounded-2xl p-6 mb-5" style={DARK_CARD}>
+        {/* Abas */}
+        <div
+          className="flex items-center gap-1 mb-5 p-1 rounded-xl overflow-x-auto"
+          style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+        >
+          {TABS.map((t) => {
+            const active = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap"
+                style={
+                  active
+                    ? { backgroundColor: 'var(--accent-bg)', color: 'var(--accent)', border: '1px solid var(--accent-border)' }
+                    : { color: 'var(--text-muted)', border: '1px solid transparent' }
+                }
+                onMouseEnter={(e) => {
+                  if (!active) {
+                    (e.currentTarget as HTMLElement).style.color = 'var(--nav-hover-text)';
+                    (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--nav-hover-bg)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) {
+                    (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
+                    (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                {t.label}
+                {tabDot(t.id)}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Integração Meta */}
+        {tab === 'integracao' && (
+        <div className="rounded-2xl p-6" style={DARK_CARD}>
           <div className="flex items-center gap-3 mb-5">
             <h2 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>Integração Meta</h2>
             {project?.hasToken && !project?.lastError && (
@@ -268,8 +338,11 @@ export function ProjectConfig() {
           </div>
         </div>
 
-        {/* Bloco B — Captura de Formulários */}
-        <div className="rounded-2xl p-6 mb-5" style={DARK_CARD}>
+        )}
+
+        {/* Captura de Formulários */}
+        {tab === 'formularios' && (
+        <div className="rounded-2xl p-6" style={DARK_CARD}>
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>Captura de Formulários</h2>
@@ -379,8 +452,11 @@ export function ProjectConfig() {
           </div>
         </div>
 
-        {/* Bloco C — Webhooks */}
-        <div className="rounded-2xl p-6 mb-5" style={DARK_CARD}>
+        )}
+
+        {/* URLs de Webhook */}
+        {tab === 'webhooks' && (
+        <div className="rounded-2xl p-6" style={DARK_CARD}>
           <div className="mb-4">
             <h2 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>URLs de Webhook</h2>
             <p className="text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>
@@ -423,7 +499,10 @@ export function ProjectConfig() {
           )}
         </div>
 
-        {/* Bloco D — Script */}
+        )}
+
+        {/* Script de Instalação */}
+        {tab === 'script' && (
         <div className="rounded-2xl p-6" style={DARK_CARD}>
           <div className="flex items-center gap-3 mb-4">
             <h2 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>Script de Instalação</h2>
@@ -478,6 +557,7 @@ export function ProjectConfig() {
             <p className="text-sm" style={{ color: 'var(--text-dim)' }}>Configure o Pixel ID acima para gerar o script.</p>
           )}
         </div>
+        )}
       </div>
     </Layout>
   );
