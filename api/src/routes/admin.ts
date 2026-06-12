@@ -673,6 +673,139 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
     }
   });
 
+  // ─── UTM Report ──────────────────────────────────────────────────────────────
+
+  fastify.get('/admin/projects/:id/utm-report', async (
+    request: FastifyRequest<{ Params: { id: string }; Querystring: { from?: string; to?: string } }>,
+    reply: FastifyReply
+  ) => {
+    const { id } = request.params;
+    const from = request.query.from || new Date(Date.now() - 30 * 86400000).toISOString();
+    const to = request.query.to || new Date().toISOString();
+
+    try {
+      // Tabela de campanhas: sessões, leads, conversões, faturamento por campanha
+      const campaignTableRes = await query(
+        `SELECT
+           COALESCE(request_payload->'metadata'->>'utm_campaign', '(sem campanha)') AS campaign,
+           COALESCE(request_payload->'metadata'->>'utm_source', 'direto') AS source,
+           COALESCE(request_payload->'metadata'->>'utm_medium', '—') AS medium,
+           COUNT(*) AS sessoes,
+           COUNT(*) FILTER (WHERE event_name = 'Lead') AS leads,
+           COUNT(*) FILTER (WHERE event_name = 'Purchase') AS conversoes,
+           COALESCE(SUM(
+             CASE
+               WHEN event_name = 'Purchase'
+                 AND request_payload->'custom_data'->>'value' ~ '^[0-9]+(\\.[0-9]+)?$'
+               THEN (request_payload->'custom_data'->>'value')::numeric
+               ELSE 0
+             END
+           ), 0) AS faturamento
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+         GROUP BY campaign, source, medium
+         ORDER BY sessoes DESC
+         LIMIT 25`,
+        [id, from, to]
+      );
+
+      // Funil por source: visitantes → leads → conversões
+      const sourceFunnelRes = await query(
+        `SELECT
+           COALESCE(request_payload->'metadata'->>'utm_source', 'direto') AS source,
+           COUNT(*) AS sessoes,
+           COUNT(*) FILTER (WHERE event_name = 'Lead') AS leads,
+           COUNT(*) FILTER (WHERE event_name = 'Purchase') AS conversoes
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+         GROUP BY source
+         ORDER BY sessoes DESC
+         LIMIT 10`,
+        [id, from, to]
+      );
+
+      // Top 10 combinações source+campaign mais lucrativas
+      const topCombosRes = await query(
+        `SELECT
+           COALESCE(request_payload->'metadata'->>'utm_source', 'direto') AS source,
+           COALESCE(request_payload->'metadata'->>'utm_campaign', '(sem campanha)') AS campaign,
+           COUNT(*) FILTER (WHERE event_name = 'Purchase') AS conversoes,
+           COALESCE(SUM(
+             CASE
+               WHEN event_name = 'Purchase'
+                 AND request_payload->'custom_data'->>'value' ~ '^[0-9]+(\\.[0-9]+)?$'
+               THEN (request_payload->'custom_data'->>'value')::numeric
+               ELSE 0
+             END
+           ), 0) AS faturamento
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+         GROUP BY source, campaign
+         HAVING COUNT(*) FILTER (WHERE event_name = 'Purchase') > 0
+         ORDER BY faturamento DESC
+         LIMIT 10`,
+        [id, from, to]
+      );
+
+      // Linha do tempo: sessões por dia, agrupado pelas top 5 campanhas
+      const timelineRes = await query(
+        `WITH top_campaigns AS (
+           SELECT COALESCE(request_payload->'metadata'->>'utm_campaign', '(sem campanha)') AS campaign
+           FROM events_log
+           WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+           GROUP BY campaign
+           ORDER BY COUNT(*) DESC
+           LIMIT 5
+         )
+         SELECT
+           DATE(created_at) AS date,
+           COALESCE(request_payload->'metadata'->>'utm_campaign', '(sem campanha)') AS campaign,
+           COUNT(*) AS sessoes
+         FROM events_log
+         WHERE client_id = $1 AND created_at BETWEEN $2 AND $3
+           AND COALESCE(request_payload->'metadata'->>'utm_campaign', '(sem campanha)') IN (SELECT campaign FROM top_campaigns)
+         GROUP BY date, campaign
+         ORDER BY date ASC`,
+        [id, from, to]
+      );
+
+      return reply.status(200).send({
+        campaignTable: campaignTableRes.rows.map((r: any) => ({
+          campaign: r.campaign,
+          source: r.source,
+          medium: r.medium,
+          sessoes: parseInt(r.sessoes, 10),
+          leads: parseInt(r.leads, 10),
+          conversoes: parseInt(r.conversoes, 10),
+          faturamento: parseFloat(r.faturamento),
+          taxaConversao: parseInt(r.sessoes, 10) > 0
+            ? parseFloat(((parseInt(r.conversoes, 10) / parseInt(r.sessoes, 10)) * 100).toFixed(1))
+            : 0,
+        })),
+        sourceFunnel: sourceFunnelRes.rows.map((r: any) => ({
+          source: r.source,
+          sessoes: parseInt(r.sessoes, 10),
+          leads: parseInt(r.leads, 10),
+          conversoes: parseInt(r.conversoes, 10),
+        })),
+        topCombos: topCombosRes.rows.map((r: any) => ({
+          source: r.source,
+          campaign: r.campaign,
+          conversoes: parseInt(r.conversoes, 10),
+          faturamento: parseFloat(r.faturamento),
+        })),
+        timeline: timelineRes.rows.map((r: any) => ({
+          date: r.date,
+          campaign: r.campaign,
+          sessoes: parseInt(r.sessoes, 10),
+        })),
+      });
+    } catch (err) {
+      fastify.log.error(err, 'Error fetching utm-report');
+      return reply.status(500).send({ error: 'Internal Server Error', message: 'Failed to fetch utm report' });
+    }
+  });
+
   // ─── Leads ───────────────────────────────────────────────────────────────────
 
   fastify.get('/admin/projects/:id/leads', async (

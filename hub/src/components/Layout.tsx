@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { LayoutDashboard, Settings, Users, FolderOpen, LogOut, Menu, Activity, ChevronLeft } from 'lucide-react';
+import { LayoutDashboard, Settings, Users, FolderOpen, LogOut, Menu, Activity, ChevronLeft, BarChart2 } from 'lucide-react';
 
 interface NavItem {
   label: string;
@@ -21,8 +21,9 @@ export function Layout({ children, projectName }: LayoutProps) {
   const nav: NavItem[] = id
     ? [
         { label: 'Dashboard', icon: <LayoutDashboard size={16} />, to: `/hub/projects/${id}/dashboard` },
-        { label: 'Configuração Meta', icon: <Settings size={16} />, to: `/hub/projects/${id}/config` },
+        { label: 'Relatório UTM', icon: <BarChart2 size={16} />, to: `/hub/projects/${id}/utm` },
         { label: 'Explorador de Leads', icon: <Users size={16} />, to: `/hub/projects/${id}/leads` },
+        { label: 'Configuração Meta', icon: <Settings size={16} />, to: `/hub/projects/${id}/config` },
       ]
     : [];
 

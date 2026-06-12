@@ -104,3 +104,41 @@ export interface LeadsResponse {
 }
 
 export type DatePreset = 'today' | 'yesterday' | '7d' | '15d' | '30d' | 'custom';
+
+export interface UtmCampaignRow {
+  campaign: string;
+  source: string;
+  medium: string;
+  sessoes: number;
+  leads: number;
+  conversoes: number;
+  faturamento: number;
+  taxaConversao: number;
+}
+
+export interface UtmSourceFunnel {
+  source: string;
+  sessoes: number;
+  leads: number;
+  conversoes: number;
+}
+
+export interface UtmTopCombo {
+  source: string;
+  campaign: string;
+  conversoes: number;
+  faturamento: number;
+}
+
+export interface UtmTimelinePoint {
+  date: string;
+  campaign: string;
+  sessoes: number;
+}
+
+export interface UtmReportData {
+  campaignTable: UtmCampaignRow[];
+  sourceFunnel: UtmSourceFunnel[];
+  topCombos: UtmTopCombo[];
+  timeline: UtmTimelinePoint[];
+}

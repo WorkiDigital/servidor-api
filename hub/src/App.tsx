@@ -5,6 +5,7 @@ import { ProjectsList } from './pages/ProjectsList';
 import { ProjectConfig } from './pages/ProjectConfig';
 import { Dashboard } from './pages/Dashboard';
 import { Leads } from './pages/Leads';
+import { UTMReport } from './pages/UTMReport';
 import { isAuthenticated } from './hooks/useAuth';
 
 const queryClient = new QueryClient({
@@ -42,6 +43,10 @@ export default function App() {
           <Route
             path="/hub/projects/:id/leads"
             element={<AuthGuard><Leads /></AuthGuard>}
+          />
+          <Route
+            path="/hub/projects/:id/utm"
+            element={<AuthGuard><UTMReport /></AuthGuard>}
           />
           <Route path="/hub" element={<Navigate to="/hub/projects" replace />} />
           <Route path="/" element={<Navigate to="/hub/projects" replace />} />
