@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Globe, Copy, Check } from 'lucide-react';
-import { getProject, updateProjectMeta, getFormCaptureRules, saveFormCaptureRules } from '../api/projects';
+import { Globe, Copy, Check, Trash2 } from 'lucide-react';
+import { getProject, updateProjectMeta, getFormCaptureRules, saveFormCaptureRules, deleteProject } from '../api/projects';
 import type { FormCaptureRule } from '../api/projects';
 import { getSnippet } from '../api/snippet';
 import { Layout } from '../components/Layout';
@@ -489,6 +489,44 @@ export function ProjectConfig() {
               <p className="text-sm" style={{ color: 'var(--text-dim)' }}>Configure o Pixel ID acima para gerar o script.</p>
             )}
           </div>
+          
+          {/* Danger Zone */}
+          <div className="rounded-2xl p-6" style={{ ...DARK_CARD, border: '1px solid rgba(239,68,68,0.2)' }}>
+            <div className="flex items-center gap-3 mb-4">
+              <Trash2 size={16} className="text-red-500" />
+              <h2 className="text-sm font-semibold text-red-500">Zona de Perigo</h2>
+            </div>
+            <p className="text-sm mb-4" style={{ color: 'var(--text-dim)' }}>
+              A exclusão do workspace é uma ação irreversível. Todos os dados associados a este workspace serão apagados permanentemente.
+            </p>
+            <button
+              onClick={() => {
+                if (window.confirm(`Tem certeza que deseja excluir o workspace "${project?.name}"? Esta ação é irreversível.`)) {
+                  deleteProject(id!).then(() => {
+                    qc.invalidateQueries({ queryKey: ['projects'] });
+                    window.location.href = '/hub';
+                  });
+                }
+              }}
+              className="px-5 py-2 rounded-xl text-sm font-semibold transition-all"
+              style={{
+                backgroundColor: 'rgba(239,68,68,0.1)',
+                color: 'var(--danger)',
+                border: '1px solid rgba(239,68,68,0.2)',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--danger)';
+                (e.currentTarget as HTMLElement).style.color = 'var(--bg-surface)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(239,68,68,0.1)';
+                (e.currentTarget as HTMLElement).style.color = 'var(--danger)';
+              }}
+            >
+              Excluir workspace
+            </button>
+          </div>
+
         </div>
       </div>
     </Layout>

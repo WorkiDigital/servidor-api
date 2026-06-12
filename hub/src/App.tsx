@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Login } from './pages/Login';
-import { ProjectsList } from './pages/ProjectsList';
 import { ProjectConfig } from './pages/ProjectConfig';
 import { Dashboard } from './pages/Dashboard';
 import { Leads } from './pages/Leads';
 import { UTMReport } from './pages/UTMReport';
+import { WorkspaceRedirector } from './pages/WorkspaceRedirector';
 import { isAuthenticated } from './hooks/useAuth';
 
 const queryClient = new QueryClient({
@@ -29,8 +29,12 @@ export default function App() {
         <Routes>
           <Route path="/hub/login" element={<Login />} />
           <Route
+            path="/hub"
+            element={<AuthGuard><WorkspaceRedirector /></AuthGuard>}
+          />
+          <Route
             path="/hub/projects"
-            element={<AuthGuard><ProjectsList /></AuthGuard>}
+            element={<Navigate to="/hub" replace />}
           />
           <Route
             path="/hub/projects/:id/dashboard"
@@ -48,8 +52,7 @@ export default function App() {
             path="/hub/projects/:id/utm"
             element={<AuthGuard><UTMReport /></AuthGuard>}
           />
-          <Route path="/hub" element={<Navigate to="/hub/projects" replace />} />
-          <Route path="/" element={<Navigate to="/hub/projects" replace />} />
+          <Route path="/" element={<Navigate to="/hub" replace />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
