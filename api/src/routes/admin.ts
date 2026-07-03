@@ -345,7 +345,10 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
     if (body.pixelId !== undefined) add('pixel_id', body.pixelId);
     if (body.apiVersion !== undefined) add('source_type', body.apiVersion);
     if (body.testEventCode !== undefined) add('test_event_code', body.testEventCode);
-    if (body.domain !== undefined) add('tracking_domain', normalizeHostname(body.domain));
+    if (body.domain !== undefined) {
+      const normalized = normalizeHostname(body.domain);
+      add('tracking_domain', normalized || null);
+    }
     if (body.accessToken !== undefined) add('access_token', encrypt(body.accessToken));
 
     if (updates.length === 0) {
@@ -376,7 +379,10 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
           updatedAt: row.updated_at,
         },
       });
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.code === '23505') {
+        return reply.status(409).send({ error: 'Conflict', message: 'This domain is already in use by another project' });
+      }
       fastify.log.error(err, 'Error updating project meta config');
       return reply.status(500).send({ error: 'Internal Server Error', message: 'Failed to update project' });
     }
