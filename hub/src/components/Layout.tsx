@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { LayoutDashboard, Settings, Users, LogOut, Menu, Activity, BarChart2, Sun, Moon, Plus, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, Settings, Users, LogOut, Menu, Activity, BarChart2, ListTree, Sun, Moon, Plus, ChevronDown } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import { listProjects, createProject } from '../api/projects';
 
@@ -50,6 +50,7 @@ export function Layout({ children }: LayoutProps) {
         { label: 'Dashboard', icon: <LayoutDashboard size={16} />, to: `/hub/projects/${targetId}/dashboard` },
         { label: 'Relatório UTM', icon: <BarChart2 size={16} />, to: `/hub/projects/${targetId}/utm` },
         { label: 'Explorador de Leads', icon: <Users size={16} />, to: `/hub/projects/${targetId}/leads` },
+        { label: 'Log de Envios', icon: <ListTree size={16} />, to: `/hub/projects/${targetId}/events` },
         { label: 'Configurações', icon: <Settings size={16} />, to: `/hub/projects/${targetId}/config` },
       ]
     : [];

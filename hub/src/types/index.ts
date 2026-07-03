@@ -142,3 +142,22 @@ export interface UtmReportData {
   topCombos: UtmTopCombo[];
   timeline: UtmTimelinePoint[];
 }
+
+export interface EventLogItem {
+  id: string;
+  eventName: string;
+  eventId: string;
+  eventTime: number;
+  sentToMeta: boolean;
+  externalId: string | null;
+  createdAt: string;
+  requestPayload: Record<string, any>;
+  metaResponse: Record<string, any> | null;
+}
+
+export interface EventsLogResponse {
+  items: EventLogItem[];
+  total: number;
+  page: number;
+  limit: number;
+}

@@ -938,6 +938,79 @@ export default async function adminRoutes(fastify: FastifyInstance, _options: Fa
     }
   });
 
+  // ─── Log de Envios (payload bruto enviado à Meta CAPI) ────────────────────────
+
+  fastify.get('/admin/projects/:id/events', async (
+    request: FastifyRequest<{
+      Params: { id: string };
+      Querystring: { event?: string; status?: string; from?: string; to?: string; page?: string };
+    }>,
+    reply: FastifyReply
+  ) => {
+    const { id } = request.params;
+    const page = Math.max(1, parseInt(request.query.page || '1', 10));
+    const limit = 25;
+    const offset = (page - 1) * limit;
+
+    try {
+      let whereClause = 'WHERE client_id = $1 AND event_name NOT IN ($2, $3)';
+      const params: any[] = [id, 'PageView', 'ViewContent'];
+      let paramIdx = 4;
+
+      if (request.query.event) {
+        whereClause += ` AND event_name = $${paramIdx++}`;
+        params.push(request.query.event);
+      }
+
+      if (request.query.status === 'sent') {
+        whereClause += ' AND sent_to_meta = true';
+      } else if (request.query.status === 'error') {
+        whereClause += ' AND sent_to_meta = false';
+      }
+
+      if (request.query.from) {
+        whereClause += ` AND created_at >= $${paramIdx++}`;
+        params.push(request.query.from);
+      }
+
+      if (request.query.to) {
+        whereClause += ` AND created_at <= $${paramIdx++}`;
+        params.push(request.query.to);
+      }
+
+      const countRes = await query(`SELECT COUNT(*) AS total FROM events_log ${whereClause}`, params);
+      const total = parseInt(countRes.rows[0]?.total || '0', 10);
+
+      const rowsRes = await query(
+        `SELECT id, event_name, event_id, event_time, sent_to_meta, request_payload, meta_response, created_at
+         FROM events_log ${whereClause}
+         ORDER BY created_at DESC
+         LIMIT $${paramIdx++} OFFSET $${paramIdx++}`,
+        [...params, limit, offset]
+      );
+
+      const items = rowsRes.rows.map((row: any) => {
+        const payload = row.request_payload || {};
+        return {
+          id: row.id,
+          eventName: row.event_name,
+          eventId: row.event_id,
+          eventTime: row.event_time,
+          sentToMeta: row.sent_to_meta,
+          externalId: payload.user_data?.external_id?.[0] || payload.lead_id || null,
+          createdAt: row.created_at,
+          requestPayload: payload,
+          metaResponse: row.meta_response || null,
+        };
+      });
+
+      return reply.status(200).send({ items, total, page, limit });
+    } catch (err) {
+      fastify.log.error(err, 'Error fetching events log');
+      return reply.status(500).send({ error: 'Internal Server Error', message: 'Failed to fetch events' });
+    }
+  });
+
   // ─── Clientes (rotas originais mantidas) ─────────────────────────────────────
 
   fastify.post('/admin/clients', async (request: FastifyRequest<{ Body: ClientBody }>, reply: FastifyReply) => {

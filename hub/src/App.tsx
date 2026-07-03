@@ -4,6 +4,7 @@ import { Login } from './pages/Login';
 import { ProjectConfig } from './pages/ProjectConfig';
 import { Dashboard } from './pages/Dashboard';
 import { Leads } from './pages/Leads';
+import { Events } from './pages/Events';
 import { UTMReport } from './pages/UTMReport';
 import { WorkspaceRedirector } from './pages/WorkspaceRedirector';
 import { isAuthenticated } from './hooks/useAuth';
@@ -47,6 +48,10 @@ export default function App() {
           <Route
             path="/hub/projects/:id/leads"
             element={<AuthGuard><Leads /></AuthGuard>}
+          />
+          <Route
+            path="/hub/projects/:id/events"
+            element={<AuthGuard><Events /></AuthGuard>}
           />
           <Route
             path="/hub/projects/:id/utm"
