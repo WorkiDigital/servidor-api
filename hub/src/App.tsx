@@ -6,6 +6,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Leads } from './pages/Leads';
 import { Events } from './pages/Events';
 import { Integrations } from './pages/Integrations';
+import { Platforms } from './pages/Platforms';
 import { Installation } from './pages/Installation';
 import { UTMReport } from './pages/UTMReport';
 import { WorkspaceRedirector } from './pages/WorkspaceRedirector';
@@ -58,6 +59,10 @@ export default function App() {
           <Route
             path="/hub/projects/:id/integrations"
             element={<AuthGuard><Integrations /></AuthGuard>}
+          />
+          <Route
+            path="/hub/projects/:id/platforms"
+            element={<AuthGuard><Platforms /></AuthGuard>}
           />
           <Route
             path="/hub/projects/:id/install"
