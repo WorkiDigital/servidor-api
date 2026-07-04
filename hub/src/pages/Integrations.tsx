@@ -144,47 +144,60 @@ export function Integrations() {
             </div>
           </div>
 
-          {/* URLs de Webhook */}
+          {/* Plataformas */}
           <div className="rounded-2xl p-6" style={DARK_CARD}>
             <div className="mb-4">
-              <h2 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>URLs de Webhook</h2>
+              <h2 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>Plataformas</h2>
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-faint)' }}>
-                Cole estas URLs nas plataformas de pagamento para enviar eventos de compra ao Meta.
+                Conecte suas plataformas de pagamento: cole a URL de webhook em cada uma para enviar eventos de compra ao Meta.
               </p>
             </div>
             {project && (
-              <div className="space-y-3">
-                {[
-                  { label: 'Kiwify', platform: 'kiwify', color: '#a78bfa' },
-                  { label: 'Hotmart', platform: 'hotmart', color: '#fb923c' },
-                ].map(({ label, platform, color }) => {
-                  const base = window.location.origin.replace(/-front\./, '-api.');
-                  const url = `${base}/webhook/${platform}?source_id=${project.id}`;
-                  return (
-                    <div
-                      key={platform}
-                      className="flex items-center gap-3 p-3 rounded-xl"
-                      style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}
-                    >
-                      <span
-                        className="text-xs font-bold px-2 py-1 rounded-lg w-16 text-center shrink-0"
-                        style={{ backgroundColor: `${color}15`, color, border: `1px solid ${color}30` }}
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { label: 'Kiwify', platform: 'kiwify', color: '#a78bfa', initial: 'K' },
+                    { label: 'Hotmart', platform: 'hotmart', color: '#fb923c', initial: 'H' },
+                  ].map(({ label, platform, color, initial }) => {
+                    const base = window.location.origin.replace(/-front\./, '-api.');
+                    const url = `${base}/webhook/${platform}?source_id=${project.id}`;
+                    return (
+                      <div
+                        key={platform}
+                        className="flex flex-col gap-3 p-4 rounded-xl"
+                        style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}
                       >
-                        {label}
-                      </span>
-                      <code className="flex-1 text-xs font-mono break-all" style={{ color: 'var(--text-muted)' }}>{url}</code>
-                      <CopyButton text={url} />
-                    </div>
-                  );
-                })}
-                <p className="text-xs" style={{ color: 'var(--text-dim)' }}>
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0"
+                            style={{ backgroundColor: `${color}15`, color, border: `1px solid ${color}30` }}
+                          >
+                            {initial}
+                          </div>
+                          <div>
+                            <div className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>{label}</div>
+                            <div className="text-xs" style={{ color: 'var(--text-dim)' }}>Webhook de compras</div>
+                          </div>
+                        </div>
+                        <code
+                          className="text-xs font-mono break-all p-2.5 rounded-lg flex-1"
+                          style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-input)', color: 'var(--text-muted)' }}
+                        >
+                          {url}
+                        </code>
+                        <CopyButton text={url} />
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-xs mt-4" style={{ color: 'var(--text-dim)' }}>
                   Para validação por assinatura, configure{' '}
                   <code className="px-1 rounded" style={{ backgroundColor: 'var(--border)', color: 'var(--text-muted)' }}>KIWIFY_WEBHOOK_SECRET</code>{' '}
                   ou{' '}
                   <code className="px-1 rounded" style={{ backgroundColor: 'var(--border)', color: 'var(--text-muted)' }}>HOTMART_WEBHOOK_SECRET</code>{' '}
                   nas variáveis de ambiente da API.
                 </p>
-              </div>
+              </>
             )}
           </div>
 
